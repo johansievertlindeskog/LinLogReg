@@ -880,14 +880,6 @@ modelTpSummary <- summary(modelTp)
 (modelTpi <- lm(log(rain) ~ temp*pressure, data = weatherExc))
 modelTpiSummary <- summary(modelTpi)
 
-
-
-
-# QUESTION: SKA VI HA I(pressure-1012) PÅ ALLA ELLER PRESSURE PÅ ALLA????
-
-
-
-
 # Rename model2nExc to modelTpiLoc
 modelTpiLoc <- model2nExc
 modelTpiLocSummary <- summary(modelTpiLoc)
