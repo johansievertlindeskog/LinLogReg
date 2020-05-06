@@ -509,7 +509,7 @@ collectAIC$R2N <- collectAIC$R2CS/R2CSMax
 
 ##### 4 ...or both with location?####
 ##### 4 (a) Fit with interaction and location #####
-# Change reference location to Uppsala since most observations
+# Change reference location to Uppsala
 weather$location <- relevel(weather$location, "Uppsala")
 
 # Fit logistic regression model with temperature, pressure
