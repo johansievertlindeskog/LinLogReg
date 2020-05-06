@@ -66,7 +66,8 @@ cbind(exp(model2b$coefficients),
 
 
 
-# ska man bara kolla pÃ¥ z-vÃ¤rdet i summary och kolla om den Ã¤r mindre Ã¤n 0.05? wald test?
+# ska man bara kolla på z-värdet i summary och kolla om den är mindre än 0.05?
+# wald test!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 
@@ -87,8 +88,8 @@ cbind(exp(model2b$coefficients),
 x0 <- data.frame(temp = c(-10, -9, 9, 10))
 
 pred2c <- cbind(x0,
-                 phat = predict(model2b, x0,
-                                type = "response"))
+                phat = predict(model2b, x0,
+                               type = "response"))
 
 # logit = logodds with s.e. for constructing C.I.
 pred2c <- cbind(
@@ -115,11 +116,11 @@ pred2c$p.upr <- pred2c$odds.upr/(1 + pred2c$odds.upr)
 head(pred2c)
 
 # There is a difference in the probability of low rain when we change the temparature
-# from -10 Â°C to -9 Â°C, compared with when we change from 9 Â°C to 10 Â°C since 
+# from -10 °C to -9 °C, compared with when we change from 9 °C to 10 °C since 
 
 
 
-# SVARA PÃ FRÃGA!!!!!!!!!!!!!!!!!!
+# SVARA PÅ FRÅGA!!!!!!!!!!!!!!!!!!
 
 
 
@@ -137,8 +138,8 @@ ggplot(lowrainPred, aes(temp, lowrain)) +
   xlab("Temperature (Â°C)") +
   ylab("Probability of low rain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature")
-      # caption = "red = fitted line, blue dashed = moving average") +
-  theme(text = element_text(size = 14))
+# caption = "red = fitted line, blue dashed = moving average") +
+theme(text = element_text(size = 14))
 
 # logit = logodds with s.e. for constructing C.I.
 lowrainPred <- cbind(lowrainPred, logit = predict(model2b, se.fit = TRUE))
@@ -181,8 +182,8 @@ head(lowrainPred)
 
 
 
-# VAD ÃR XBETA? samma som YHAT?????=?????????
-
+# VAD ÄR XBETA? samma som YHAT??????????????
+#xbetahat, linjär prediktor, logoddsenhat
 
 
 
@@ -205,15 +206,15 @@ outliersLeverage <- which(lowrainPred$v > I(2*4/nrow(weather)))
 
 # ... and highlight the outliers
 (plotLevTemp2bOutliers <- plotLevTemp2b +
-  geom_point(data = lowrainPred[outliersLeverage, ], size = 3, 
-             color = "red", shape = 24) +
-  labs(title = "Leverage vs temperature")) #red = 2(p+1)/n, black = 0.0073
+    geom_point(data = lowrainPred[outliersLeverage, ], size = 3, 
+               color = "red", shape = 24) +
+    labs(title = "Leverage vs temperature")) #red = 2(p+1)/n, black = 0.0073
 
 # Conclusion: Some observations with high leverage.
 
 
 
-# FRÃGA: HUR MÃNGA LEVERAGE RÃKNAS SOM HIGH??????????????????????????
+# FRÃGA: HUR MÃNGA LEVERAGE RÄKNAS SOM HIGH??????????????????????????
 
 
 
@@ -228,22 +229,25 @@ head(lowrainPred)
 # Plot of standardized deviance residuals vs temperature
 # with horizontal lines for 0, +-2 and +-4.
 (plotResTemp2b <- ggplot(lowrainPred, aes(temp, devstd, color = as.factor(lowrain))) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
-             size = 1) +
-  geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
-             size = 1) +
-  xlab("Temperature (Â°C)") +
-  ylab("Standardized deviance residuals") +
-  labs(title = "Standardized deviance residuals vs temperature",
-       color = "Y") +
-  theme(text = element_text(size = 14)))
+    geom_point() +
+    geom_hline(yintercept = 0) +
+    geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
+               size = 1) +
+    geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
+               size = 1) +
+    xlab("Temperature (Â°C)") +
+    ylab("Standardized deviance residuals") +
+    labs(title = "Standardized deviance residuals vs temperature",
+         color = "Y") +
+    theme(text = element_text(size = 14)))
 
 # Conclusion: No alarmingly large standardized deviance residuals.
 
 
-# FRÃGA: STÃMMER DET, SKA VI EJ TA BORT NÂ¨GRA FRÃN standardized deviance residuals????
+
+# FRÃGA: STÄMMER DET, SKA VI EJ TA BORT NÂGRA FRÃN standardized deviance residuals???? Ta ej bort
+
+
 
 ##### 2 (g) Cook's D ####
 # Add Cook's D
@@ -252,17 +256,17 @@ head(lowrainPred)
 
 # Plot of Cook's D vs temperature with horizontal line for 4/n
 (plotCooksDTemp2b <- ggplot(lowrainPred, aes(temp, D, color = as.factor(lowrain))) +
-  geom_point() +
-  geom_point(data = lowrainPred[outliersLeverage, ], color = "black",
-             shape = 24, size = 3) +
-  geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
-             size = 1) +
-  facet_grid(cols = vars(lowrain)) +
-  xlab("Temperature (Â°C)") +
-  ylab("Cook's D") +
-  labs(title = "Cook's D vs temp",
-       color = "Y") +
-  theme(text = element_text(size = 14)))
+    geom_point() +
+    geom_point(data = lowrainPred[outliersLeverage, ], color = "black",
+               shape = 24, size = 3) +
+    geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
+               size = 1) +
+    facet_grid(cols = vars(lowrain)) +
+    xlab("Temperature (Â°C)") +
+    ylab("Cook's D") +
+    labs(title = "Cook's D vs temp",
+         color = "Y") +
+    theme(text = element_text(size = 14)))
 
 # Are there any observations that have had a large influence on the estimates?
 # Ans: Yes.
@@ -271,8 +275,9 @@ head(lowrainPred)
 
 
 
-# FRÃGA: SKA VI TA BORT MER BASERAT PÃ COOKS D??????????????????????????????????????
-
+# FRÃGA: SKA VI TA BORT MER BASERAT PÃ COOKS D??????????????????????????????????????
+# Kallt och inte regnar (röd) - ej ta bort
+# ovanlig temperatur, men normal regnmängd (blå)
 
 
 ##### 3 ...or pressure...####
@@ -281,7 +286,7 @@ head(lowrainPred)
 # Plot lowrain vs pressure with moving average
 (
   plotRainPressure <- ggplot(data = weather, 
-                         aes(x = pressure, y = lowrain )) + 
+                             aes(x = pressure, y = lowrain )) + 
     geom_smooth(method = loess) + # moving average
     geom_point(size = 1) +
     xlab("Pressure (hPa)") +
@@ -297,8 +302,8 @@ summary(model3a) # pressure significant
 
 
 
-# FRÃN OCH MED HÃR, SKA VI ALLTID HA PRESSURE - 1012 ELLER OK MED ENDAST PRESSURE NÃR
-# VI EXEMPELVIS KÃR LEVERAGE OCH DEVIANCE RESIDUALS OSV? SPELAR DET NÃGON ROLL?
+# FRÃN OCH MED HÄR, SKA VI ALLTID HA PRESSURE - 1012 ELLER OK MED ENDAST PRESSURE NÄR
+# VI EXEMPELVIS KÅR LEVERAGE OCH DEVIANCE RESIDUALS OSV? SPELAR DET NÅGON ROLL?
 
 
 
@@ -382,7 +387,7 @@ head(lowrainPred)
 
 
 
-# FRÃGA: PRESSURE ELLER PRESSURE - 1012???? ÃNDRA ENHET I SÃ FALL!!!
+# FRÃGA: PRESSURE ELLER PRESSURE - 1012???? ÃNDRA ENHET I SÃ FALL!!!
 
 
 
@@ -392,9 +397,9 @@ outliersLeverage <- which(lowrainPred$v > I(2*4/nrow(weather)))
 
 # ... and highlight the outliers
 (plotLevPressure3aOutliers <- plotLevPressure3a +
-  geom_point(data = lowrainPred[outliersLeverage, ], size = 3, 
-             color = "red", shape = 24) +
-  labs(title = "Leverage vs pressure")) #red = 2(p+1)/n, black = 0.0073
+    geom_point(data = lowrainPred[outliersLeverage, ], size = 3, 
+               color = "red", shape = 24) +
+    labs(title = "Leverage vs pressure")) #red = 2(p+1)/n, black = 0.0073
 
 # Conclusion: Some observations with high leverage.
 
@@ -409,24 +414,24 @@ head(lowrainPred)
 # Plot of standardized deviance residuals vs pressure
 # with horizontal lines for 0, +-2 and +-4.
 (plotResPressure3a <- ggplot(lowrainPred, aes(pressure, devstd, color = as.factor(lowrain))) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
-             size = 1) +
-  geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
-             size = 1) +
-  xlab("Pressure (hPa)") +
-  ylab("Standardized deviance residuals") +
-  labs(title = "Standardized deviance residuals vs pressure",
-       color = "Y") +
-  theme(text = element_text(size = 14)))
+    geom_point() +
+    geom_hline(yintercept = 0) +
+    geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
+               size = 1) +
+    geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
+               size = 1) +
+    xlab("Pressure (hPa)") +
+    ylab("Standardized deviance residuals") +
+    labs(title = "Standardized deviance residuals vs pressure",
+         color = "Y") +
+    theme(text = element_text(size = 14)))
 
 # Conclusion: Some alarmingly large standardized deviance residuals.
 
 
 
 
-# FRÃGA: VILKA SKA VI TA BORT? FINNS MASSOR AV KANDIDATER!
+# FRÅGA: VILKA SKA VI TA BORT? FINNS MASSOR AV KANDIDATER! Nej
 
 
 
@@ -439,22 +444,22 @@ head(lowrainPred)
 
 # Plot of Cook's D vs pressure with horizontal line for 4/n
 (plotCooksDPressure3a <- ggplot(lowrainPred, aes(pressure, D, color = as.factor(lowrain))) +
-  geom_point() +
-  geom_point(data = lowrainPred[outliersLeverage, ], color = "black",
-             shape = 24, size = 3) +
-  geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
-             size = 1) +
+    geom_point() +
+    geom_point(data = lowrainPred[outliersLeverage, ], color = "black",
+               shape = 24, size = 3) +
+    geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
+               size = 1) +
     facet_grid(cols = vars(lowrain)) +
-  xlab("Pressure (hPa)") +
-  ylab("Cook's D") +
-  labs(title = "Cook's D vs pressure",
-       color = "Y") +
-  theme(text = element_text(size = 14)))
+    xlab("Pressure (hPa)") +
+    ylab("Cook's D") +
+    labs(title = "Cook's D vs pressure",
+         color = "Y") +
+    theme(text = element_text(size = 14)))
 
 # Conclusion: Only 1 with high leverage and Cook's D.
 
 
-# SKA VI TA BORT FLER ÃN DEN ENSAMMA UPPE VID 0.08????????
+# SKA VI TA BORT FLER ÄN DEN ENSAMMA UPPE VID 0.08???????? Ja, men inga andra. Men avvakta med att ta bort tills senare
 
 
 
@@ -475,8 +480,8 @@ grid.arrange(plotCooksDTemp2b, plotCooksDPressure3a, nrow=1, ncol=2)
 
 
 
-# Ans: RÃTT CONCLUSION????????????!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+# Ans: RÄTT CONCLUSION????????????!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Temp
 
 
 ##### 3 (g) AIC and BIC#####
@@ -503,7 +508,7 @@ collectAIC$R2N <- collectAIC$R2CS/R2CSMax
 
 
 
-#  TODO: TAR BORT RÃTT AV DET SOM SKA BORT EFTER ÃEVERAGE, RESIDUALS AND COOKS D
+#  TODO: TAR BORT RÄTT AV DET SOM SKA BORT EFTER ÃEVERAGE, RESIDUALS AND COOKS D
 
 
 
@@ -549,8 +554,8 @@ lowrainPred <- cbind(weather, phat = predict(model4a, type = "response"))
 ggplot(lowrainPred, aes(x = temp, y = lowrain)) +
   geom_point() +
   facet_wrap(~ location) +
-  geom_smooth(se = FALSE, linetype = "dashed") +
-  geom_line(aes(y = phat), color = "red", size = 1) +
+  # geom_smooth(se = FALSE, linetype = "dashed") +
+  # geom_line(aes(y = phat), color = "red", size = 1) +
   geom_point(aes(y = phat, color = pressure)) +
   scale_color_viridis_c() +
   xlab("Temperature (Â°C)") +
@@ -564,7 +569,6 @@ ggplot(lowrainPred, aes(x = temp, y = lowrain)) +
 
 
 # THE PREDICTED PROBABILITIES PHAT SER UT SOM SKIT HUR FÃR MAN PLOTTEN ATT SE OK UT??????????????
-
 
 
 # logit = logodds with s.e. for constructing C.I.
@@ -624,7 +628,7 @@ ggplot(lowrainPred, aes(x = pressure, y = lowrain)) +
 
 
 
-# THE PREDICTED PROBABILITIES PHAT SER UT SOM SKIT HÃR MED!! 
+# THE PREDICTED PROBABILITIES PHAT SER UT SOM SKIT HÄR MED!! 
 
 
 
@@ -634,7 +638,7 @@ ggplot(lowrainPred, aes(x = pressure, y = lowrain)) +
 # in addition to pressure? - ????????????????????????????????????????????????
 
 
-# SVARA PÃ FRÃGORNA!!!!
+# SVARA PÃ FRÃGORNA!!!!
 
 
 ##### 4 (c) Weather in Lund#####
@@ -713,38 +717,38 @@ head(lowrainPred)
 # Plot of standardized deviance residuals vs temperature with colors according
 # to pressure with horizontal lines for 0, +-2 and +-4.
 (plotResTemp4a <- ggplot(lowrainPred, aes(x = temp, y = devstd)) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
-             size = 1) +
-  geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
-             size = 1) +
-  facet_wrap(~ location) +
-  geom_point(aes(y = devstd, color = pressure)) +
-  scale_color_viridis_c() +
-  xlab("Temperature (°C)") +
-  ylab("Standardized deviance residuals") +
-  labs(title = "Standardized deviance residuals vs temperature",
-       color = "Pressure (hPa)") +
-  theme(text = element_text(size = 14)))
+    geom_point() +
+    geom_hline(yintercept = 0) +
+    geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
+               size = 1) +
+    geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
+               size = 1) +
+    facet_wrap(~ location) +
+    geom_point(aes(y = devstd, color = pressure)) +
+    scale_color_viridis_c() +
+    xlab("Temperature (°C)") +
+    ylab("Standardized deviance residuals") +
+    labs(title = "Standardized deviance residuals vs temperature",
+         color = "Pressure (hPa)") +
+    theme(text = element_text(size = 14)))
 
 # Plot of standardized deviance residuals vs pressure with colors according
 # to temperature with horizontal lines for 0, +-2 and +-4.
 (plotResPressure4a <- ggplot(lowrainPred, aes(x = pressure, y = devstd)) +
-  geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
-             size = 1) +
-  geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
-             size = 1) +
-  facet_wrap(~ location) +
-  geom_point(aes(y = devstd, color = temp)) +
-  scale_color_viridis_c() +
-  xlab("Pressure (hPa)") +
-  ylab("Standardized deviance residuals") +
-  labs(title = "Standardized deviance residuals vs pressure",
-       color = "Temp. (°C)") +
-  theme(text = element_text(size = 14)))
+    geom_point() +
+    geom_hline(yintercept = 0) +
+    geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
+               size = 1) +
+    geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
+               size = 1) +
+    facet_wrap(~ location) +
+    geom_point(aes(y = devstd, color = temp)) +
+    scale_color_viridis_c() +
+    xlab("Pressure (hPa)") +
+    ylab("Standardized deviance residuals") +
+    labs(title = "Standardized deviance residuals vs pressure",
+         color = "Temp. (°C)") +
+    theme(text = element_text(size = 14)))
 
 # Plots for comparing
 grid.arrange(plotResTemp2b, plotResTemp4a, nrow=2, ncol=1)
@@ -1038,8 +1042,3 @@ predPhat$yhat4a <- as.numeric(predPhat$phat4a > 0.5)
 ##### 5 (c) #####
 
 ##### 5 (d) #####
-
-
-
-
-
