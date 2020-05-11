@@ -2,7 +2,7 @@
 
 # Initializing
 rm(list = ls())
-load("Data/weather.rda")
+load("~/R/LinLogReg/Data/weather.rda")
 
 ##### 1 The null model####
 
@@ -42,7 +42,7 @@ library(ggplot2) # activate ggplot2 commands
                          aes(x = temp, y = lowrain )) + 
     geom_smooth(method = loess) + # moving average
     geom_point(size = 1) +
-    xlab("Temperature (Ã‚Â°C)") +
+    xlab("Temperature (°C)") +
     ylab("Lowrain (1/0)") +
     labs(title = "Probability of low rain vs temperature") +
     theme(text = element_text(size = 18))
@@ -64,13 +64,8 @@ cbind(exp(model2b$coefficients),
       exp(confint(model2b)))
 
 
-
-
-# ska man bara kolla pÃ¥ z-vÃ¤rdet i summary och kolla om den Ã¤r mindre Ã¤n 0.05?
-# wald test!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
+# kolla på belopp av z-värde och jämför med kvantilen eller p-värdet som vanligt,
+# det är ett Wald test.
 
 # logistic regression model
 # log(Y) = B0 + B1*x + epsilon
@@ -78,9 +73,9 @@ cbind(exp(model2b$coefficients),
 # Y = exp(B0) * exp(B1)^x * exp(epsilon) = a * b^x * exp(epsilon)
 # where a = exp(B0) and b = exp(B1)
 
-# How does the odds of low rain change when the temperature is increased by 1 Ã‚Â°C?
+# How does the odds of low rain change when the temperature is increased by 1 Â°C?
 # Ans: b^1 = 0.93 i.e. odds decreases by 7%
-# How does the odds of low rain change when the temperature is decreased by 1 Ã‚Â°C?
+# How does the odds of low rain change when the temperature is decreased by 1 Â°C?
 # Ans: b^(-1) = 0.93^-1 = 1.08 i.e. odds increases by 8%
 
 ##### 2 (c) #####
@@ -116,11 +111,11 @@ pred2c$p.upr <- pred2c$odds.upr/(1 + pred2c$odds.upr)
 head(pred2c)
 
 # There is a difference in the probability of low rain when we change the temparature
-# from -10 Â°C to -9 Â°C, compared with when we change from 9 Â°C to 10 Â°C since 
+# from -10 °C to -9 °C, compared with when we change from 9 °C to 10 °C since 
 
 
 
-# SVARA PÃ… FRÃ…GA!!!!!!!!!!!!!!!!!!
+# SVARA PÅ FRÅGA??????????????????????????????????? VI VET EH SVAR
 
 
 
@@ -129,113 +124,105 @@ head(pred2c)
 ##### 2 (d) #####
 # predict for plotting
 # phat = estimated probabilities
-lowrainPred <- cbind(weather, phat = predict(model2b, type = "response"))
+lowrainPred2b <- cbind(weather, phat = predict(model2b, type = "response"))
 
-ggplot(lowrainPred, aes(temp, lowrain)) +
+ggplot(lowrainPred2b, aes(temp, lowrain)) +
   geom_point() +
   geom_smooth(se = FALSE, linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
-  xlab("Temperature (Ã‚Â°C)") +
-  ylab("Probability of low rain") +
-  labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature")
-# caption = "red = fitted line, blue dashed = moving average") +
-theme(text = element_text(size = 14))
+  xlab("Temperature (°C)") +
+  ylab("Lowrain") +
+  labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature") +
+  theme(text = element_text(size = 15))
+# caption = "red = fitted line, blue dashed = moving average")
+
 
 # logit = logodds with s.e. for constructing C.I.
-lowrainPred <- cbind(lowrainPred, logit = predict(model2b, se.fit = TRUE))
+lowrainPred2b <- cbind(lowrainPred2b, logit = predict(model2b, se.fit = TRUE))
 
 # Remove unnecessary variable:
-lowrainPred$logit.residual.scale <- NULL
+lowrainPred2b$logit.residual.scale <- NULL
 
 # Calculate confidence intervals for the log odds
 # standard normal quantile:
 (lambda <- qnorm(1 - 0.05/2))
-lowrainPred$logit.lwr <- lowrainPred$logit.fit - lambda*lowrainPred$logit.se.fit
-lowrainPred$logit.upr <- lowrainPred$logit.fit + lambda*lowrainPred$logit.se.fit
+lowrainPred2b$logit.lwr <- lowrainPred2b$logit.fit - lambda*lowrainPred2b$logit.se.fit
+lowrainPred2b$logit.upr <- lowrainPred2b$logit.fit + lambda*lowrainPred2b$logit.se.fit
 
 # transform the log-odds intervals into C.I. for odds
-lowrainPred$odds.lwr <- exp(lowrainPred$logit.lwr)
-lowrainPred$odds.upr <- exp(lowrainPred$logit.upr)
+lowrainPred2b$odds.lwr <- exp(lowrainPred2b$logit.lwr)
+lowrainPred2b$odds.upr <- exp(lowrainPred2b$logit.upr)
 
 # transform the odds intervals into C.I. for p
-lowrainPred$p.lwr <- lowrainPred$odds.lwr/(1 + lowrainPred$odds.lwr)
-lowrainPred$p.upr <- lowrainPred$odds.upr/(1 + lowrainPred$odds.upr)
-head(lowrainPred)
+lowrainPred2b$p.lwr <- lowrainPred2b$odds.lwr/(1 + lowrainPred2b$odds.lwr)
+lowrainPred2b$p.upr <- lowrainPred2b$odds.upr/(1 + lowrainPred2b$odds.upr)
+head(lowrainPred2b)
 
 # plot the intervals:
-ggplot(lowrainPred, aes(temp, lowrain)) +
+ggplot(lowrainPred2b, aes(temp, lowrain)) +
   geom_point() +
   geom_smooth(se = FALSE, linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
   geom_ribbon(aes(ymin = p.lwr, ymax = p.upr), alpha = 0.2) +
-  xlab("Temperature (Ã‚Â°C)") +
-  ylab("Probability of low rain") +
-  labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature")
+  xlab("Temperature (°C)") +
+  ylab("Lowrain") +
+  labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature") +
+theme(text = element_text(size = 15))
 # caption = "red = fitted line, blue dashed = moving average") +
-theme(text = element_text(size = 14))
+
 
 ##### 2 (e) Leverage #####
 leverage <- influence(model2b)
 
-lowrainPred <- cbind(weather, xbeta = predict(model2b), v = leverage$hat)
-head(lowrainPred)
+lowrainPred2b <- cbind(weather, xbeta = predict(model2b), v = leverage$hat)
+head(lowrainPred2b)
 
-
-
-# VAD Ã„R XBETA? samma som YHAT??????????????
-#xbetahat, linjÃ¤r prediktor, logoddsenhat
-
-
-
+# xbetahat är vår linjära prediktor dvs logoddshat. Yhat är det vi modellerar
+# dvs lowrain eller inte lowrain. xbetahat är värdena som vi drar slutsats ifrån
+# huruvida det var lowrain eller inte.
 
 # Plot of leverage vs temperature with 1/n and 2(p+1)/n horizontal lines
-(plotLevTemp2b <- ggplot(lowrainPred, aes(temp, v, ymin = 0, color = as.factor(lowrain))) + 
+(plotLevTemp2b <- ggplot(lowrainPred2b, aes(temp, v, ymin = 0, color = as.factor(lowrain))) + 
     geom_point() +
     geom_hline(yintercept = c(I(1/nrow(weather)))) +
     geom_hline(yintercept = 2*4/nrow(weather),
                color = "red", size = 1) +#(2*2 = 4 parameters)
     facet_wrap(~ lowrain) +
-    xlab("Temperature (Ã‚Â°C)") +
+    xlab("Temperature (°C)") +
     ylab("Leverage") +
     labs(title = "Leverage vs temperature",
          color = "Y") +
     theme(text = element_text(size = 14)))
 
 # Find all leverage above 2*4/nrow(weather) = 0.0073 (arbitrary choice):
-outliersLeverage <- which(lowrainPred$v > I(2*4/nrow(weather)))
+outliersLeverage <- which(lowrainPred2b$v > I(2*4/nrow(weather)))
 
 # ... and highlight the outliers
 (plotLevTemp2bOutliers <- plotLevTemp2b +
-    geom_point(data = lowrainPred[outliersLeverage, ], size = 3, 
+    geom_point(data = lowrainPred2b[outliersLeverage, ], size = 3, 
                color = "red", shape = 24) +
     labs(title = "Leverage vs temperature")) #red = 2(p+1)/n, black = 0.0073
 
 # Conclusion: Some observations with high leverage.
 
-
-
-# FRÃƒGA: HUR MÃƒNGA LEVERAGE RÃ„KNAS SOM HIGH??????????????????????????
-
-
-
 ##### 2 (f) Standardised deviance residuals #####
 # Deviance residuals
-lowrainPred$devres <- leverage$dev.res
+lowrainPred2b$devres <- leverage$dev.res
 
 # Standardised deviance residuals
-lowrainPred$devstd <- lowrainPred$devres/sqrt(1 - lowrainPred$v)
-head(lowrainPred)
+lowrainPred2b$devstd <- lowrainPred2b$devres/sqrt(1 - lowrainPred2b$v)
+head(lowrainPred2b)
 
 # Plot of standardized deviance residuals vs temperature
 # with horizontal lines for 0, +-2 and +-4.
-(plotResTemp2b <- ggplot(lowrainPred, aes(temp, devstd, color = as.factor(lowrain))) +
+(plotResTemp2b <- ggplot(lowrainPred2b, aes(temp, devstd, color = as.factor(lowrain))) +
     geom_point() +
     geom_hline(yintercept = 0) +
     geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
                size = 1) +
     geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
                size = 1) +
-    xlab("Temperature (Ã‚Â°C)") +
+    xlab("Temperature (°C)") +
     ylab("Standardized deviance residuals") +
     labs(title = "Standardized deviance residuals vs temperature",
          color = "Y") +
@@ -243,42 +230,30 @@ head(lowrainPred)
 
 # Conclusion: No alarmingly large standardized deviance residuals.
 
-
-
-# FRÃƒGA: STÃ„MMER DET, SKA VI EJ TA BORT NÃ‚GRA FRÃƒN standardized deviance residuals???? Ta ej bort
-
-
-
 ##### 2 (g) Cook's D ####
 # Add Cook's D
-lowrainPred$D <- cooks.distance(model2b)
-head(lowrainPred)
+lowrainPred2b$D <- cooks.distance(model2b)
+head(lowrainPred2b)
 
 # Plot of Cook's D vs temperature with horizontal line for 4/n
-(plotCooksDTemp2b <- ggplot(lowrainPred, aes(temp, D, color = as.factor(lowrain))) +
+(plotCooksDTemp2b <- ggplot(lowrainPred2b, aes(temp, D, color = as.factor(lowrain))) +
     geom_point() +
-    geom_point(data = lowrainPred[outliersLeverage, ], color = "black",
+    geom_point(data = lowrainPred2b[outliersLeverage, ], color = "black",
                shape = 24, size = 3) +
     geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
                size = 1) +
     facet_grid(cols = vars(lowrain)) +
-    xlab("Temperature (Ã‚Â°C)") +
+    xlab("Temperature (°C)") +
     ylab("Cook's D") +
     labs(title = "Cook's D vs temp",
          color = "Y") +
     theme(text = element_text(size = 14)))
 
 # Are there any observations that have had a large influence on the estimates?
-# Ans: Yes.
+# Ans: Maybe some but since they are in a group together we keep them.
 # Are these observations the same as those that had the highest leverages?
-# Ans: Yes, one of the previous 4.
-
-
-
-# FRÃƒÂ…GA: SKA VI TA BORT MER BASERAT PÃƒ COOKS D??????????????????????????????????????
-# Kallt och inte regnar (rÃ¶d) - ej ta bort
-# ovanlig temperatur, men normal regnmÃ¤ngd (blÃ¥)
-
+# Ans: Yes, one of the previous 4 for the red line, found when we dont have
+# low rain and the temperature is unusually low.
 
 ##### 3 ...or pressure...####
 
@@ -290,24 +265,14 @@ head(lowrainPred)
     geom_smooth(method = loess) + # moving average
     geom_point(size = 1) +
     xlab("Pressure (hPa)") +
-    ylab("Lowrain (1/0)") +
+    ylab("Lowrain") +
     labs(title = "Probability of low rain vs pressure") +
-    theme(text = element_text(size = 18))
+    theme(text = element_text(size = 15))
 )
 
 # Fit logistic regression model with pressure
 model3a <- glm(lowrain ~ I(pressure - 1012), family = "binomial", data = weather)
 summary(model3a) # pressure significant
-
-
-
-
-# FRÃƒN OCH MED HÃ„R, SKA VI ALLTID HA PRESSURE - 1012 ELLER OK MED ENDAST PRESSURE NÃ„R
-# VI EXEMPELVIS KÃ…R LEVERAGE OCH DEVIANCE RESIDUALS OSV? SPELAR DET NÃ…GON ROLL?
-
-
-
-
 
 # Beta estimates and CI for log-odds
 cbind(model3a$coefficients,
@@ -318,62 +283,62 @@ cbind(exp(model3a$coefficients),
       exp(confint(model3a)))
 
 # predict for plotting
-lowrainPred <- cbind(weather, phat = predict(model3a, type = "response"))
+lowrainPred3a <- cbind(weather, phat = predict(model3a, type = "response"))
 
-ggplot(lowrainPred, aes(I(pressure - 1012), lowrain)) +
+ggplot(lowrainPred3a, aes(I(pressure - 1012), lowrain)) +
   geom_point() +
   geom_smooth(se = FALSE, linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
   xlab("Pressure (0 = 1012 hPa)") +
-  ylab("Probability of low rain") +
+  ylab("Lowrain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs pressure") +
-  theme(text = element_text(size = 14))
+  theme(text = element_text(size = 15))
 # caption = "red = fitted line, blue dashed = moving average")
 
 # logit = logodds with s.e. for constructing C.I.
-lowrainPred <- cbind(
-  lowrainPred,
+lowrainPred3a <- cbind(
+  lowrainPred3a,
   logit = predict(model3a, se.fit = TRUE))
-head(lowrainPred)
+head(lowrainPred3a)
 
 # Remove unnecessary variable:
-lowrainPred$logit.residual.scale <- NULL
+lowrainPred3a$logit.residual.scale <- NULL
 
 # Calculate confidence intervals for the log odds
 # standard normal quantile:
 (lambda <- qnorm(1 - 0.05/2))
-lowrainPred$logit.lwr <- lowrainPred$logit.fit - lambda*lowrainPred$logit.se.fit
-lowrainPred$logit.upr <- lowrainPred$logit.fit + lambda*lowrainPred$logit.se.fit
+lowrainPred3a$logit.lwr <- lowrainPred3a$logit.fit - lambda*lowrainPred3a$logit.se.fit
+lowrainPred3a$logit.upr <- lowrainPred3a$logit.fit + lambda*lowrainPred3a$logit.se.fit
 
 # transform the log-odds intervals into C.I. for odds
-lowrainPred$odds.lwr <- exp(lowrainPred$logit.lwr)
-lowrainPred$odds.upr <- exp(lowrainPred$logit.upr)
+lowrainPred3a$odds.lwr <- exp(lowrainPred3a$logit.lwr)
+lowrainPred3a$odds.upr <- exp(lowrainPred3a$logit.upr)
 
 # transform the odds intervals into C.I. for p
-lowrainPred$p.lwr <- lowrainPred$odds.lwr/(1 + lowrainPred$odds.lwr)
-lowrainPred$p.upr <- lowrainPred$odds.upr/(1 + lowrainPred$odds.upr)
-head(lowrainPred)
+lowrainPred3a$p.lwr <- lowrainPred3a$odds.lwr/(1 + lowrainPred3a$odds.lwr)
+lowrainPred3a$p.upr <- lowrainPred3a$odds.upr/(1 + lowrainPred3a$odds.upr)
+head(lowrainPred3a)
 
 # plot the intervals:
-ggplot(lowrainPred, aes(I(pressure - 1012), lowrain)) +
+ggplot(lowrainPred3a, aes(I(pressure - 1012), lowrain)) +
   geom_point() +
   geom_smooth(se = FALSE, linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
   geom_ribbon(aes(ymin = p.lwr, ymax = p.upr), alpha = 0.2) +
   xlab("Pressure (0 = 1012 hPa)") +
-  ylab("Probability of low rain") +
+  ylab("Lowrain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs pressure") +
-  theme(text = element_text(size = 14))
+  theme(text = element_text(size = 15))
 # caption = "red = fitted line, blue dashed = moving average")
 
 ##### 3 (b) Leverage #####
 leverage <- influence(model3a)
 
-lowrainPred <- cbind(weather, xbeta = predict(model3a), v = leverage$hat)
-head(lowrainPred)
+lowrainPred3a <- cbind(weather, xbeta = predict(model3a), v = leverage$hat)
+head(lowrainPred3a)
 
 # Plot of leverage vs pressure with 1/n and 2(p+1)/n horizontal lines
-(plotLevPressure3a <- ggplot(lowrainPred, aes(pressure, v, ymin = 0, color = as.factor(lowrain))) + 
+(plotLevPressure3a <- ggplot(lowrainPred3a, aes(pressure, v, ymin = 0, color = as.factor(lowrain))) + 
     geom_point() +
     geom_hline(yintercept = c(I(1/nrow(weather)))) +
     geom_hline(yintercept = 2*4/nrow(weather),
@@ -384,36 +349,29 @@ head(lowrainPred)
     labs(title = "Leverage vs pressure", color = "Y") +
     theme(text = element_text(size = 14)))
 
-
-
-
-# FRÃƒGA: PRESSURE ELLER PRESSURE - 1012???? ÃƒÂ„NDRA ENHET I SÃƒÂ… FALL!!!
-
-
-
-
 # Find all leverage above 2*4/nrow(weather) = 0.0073 (arbitrary choice):
-outliersLeverage <- which(lowrainPred$v > I(2*4/nrow(weather)))
+outliersLeverage <- which(lowrainPred3a$v > I(2*4/nrow(weather)))
 
 # ... and highlight the outliers
 (plotLevPressure3aOutliers <- plotLevPressure3a +
-    geom_point(data = lowrainPred[outliersLeverage, ], size = 3, 
+    geom_point(data = lowrainPred3a[outliersLeverage, ], size = 3, 
                color = "red", shape = 24) +
     labs(title = "Leverage vs pressure")) #red = 2(p+1)/n, black = 0.0073
 
-# Conclusion: Some observations with high leverage.
+# Conclusion: Some observations with high leverage but we will not remove them,
+# we wait until we have fitted to biggest model first.
 
 ##### 3 (c) Standardised deviance residuals #####
 # Deviance residuals
-lowrainPred$devres <- leverage$dev.res
+lowrainPred3a$devres <- leverage$dev.res
 
 # Standardised deviance residuals
-lowrainPred$devstd <- lowrainPred$devres/sqrt(1 - lowrainPred$v)
-head(lowrainPred)
+lowrainPred3a$devstd <- lowrainPred3a$devres/sqrt(1 - lowrainPred3a$v)
+head(lowrainPred3a)
 
 # Plot of standardized deviance residuals vs pressure
 # with horizontal lines for 0, +-2 and +-4.
-(plotResPressure3a <- ggplot(lowrainPred, aes(pressure, devstd, color = as.factor(lowrain))) +
+(plotResPressure3a <- ggplot(lowrainPred3a, aes(pressure, devstd, color = as.factor(lowrain))) +
     geom_point() +
     geom_hline(yintercept = 0) +
     geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
@@ -428,24 +386,15 @@ head(lowrainPred)
 
 # Conclusion: Some alarmingly large standardized deviance residuals.
 
-
-
-
-# FRÃ…GA: VILKA SKA VI TA BORT? FINNS MASSOR AV KANDIDATER! Nej
-
-
-
-
-
 ##### 3 (d) Cook's D#####
 # Add Cook's D
-lowrainPred$D <- cooks.distance(model3a)
-head(lowrainPred)
+lowrainPred3a$D <- cooks.distance(model3a)
+head(lowrainPred3a)
 
 # Plot of Cook's D vs pressure with horizontal line for 4/n
-(plotCooksDPressure3a <- ggplot(lowrainPred, aes(pressure, D, color = as.factor(lowrain))) +
+(plotCooksDPressure3a <- ggplot(lowrainPred3a, aes(pressure, D, color = as.factor(lowrain))) +
     geom_point() +
-    geom_point(data = lowrainPred[outliersLeverage, ], color = "black",
+    geom_point(data = lowrainPred3a[outliersLeverage, ], color = "black",
                shape = 24, size = 3) +
     geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
                size = 1) +
@@ -456,15 +405,30 @@ head(lowrainPred)
          color = "Y") +
     theme(text = element_text(size = 14)))
 
-# Conclusion: Only 1 with high leverage and Cook's D.
+# Highlight the outlier in Cook's D
+outliersCooksD <- which(lowrainPred3a$D > 0.06)
 
+# Plot of Cook's D vs pressure with highlited outlier, with horizontal line for 4/n
+(plotCooksDPressure3a <- ggplot(lowrainPred3a, aes(pressure, D, color = as.factor(lowrain))) +
+    geom_point() +
+    geom_point(data = lowrainPred3a[outliersLeverage, ], color = "black",
+               shape = 24, size = 3) +
+    geom_point(data = lowrainPred3a[outliersCooksD, ], color = "red",
+               shape = 24, size = 3) +
+    geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
+               size = 1) +
+    facet_grid(cols = vars(lowrain)) +
+    xlab("Pressure (hPa)") +
+    ylab("Cook's D") +
+    labs(title = "Cook's D vs pressure",
+         color = "Y") +
+    theme(text = element_text(size = 14)))
 
-# SKA VI TA BORT FLER Ã„N DEN ENSAMMA UPPE VID 0.08???????? Ja, men inga andra. Men avvakta med att ta bort tills senare
-
-
+# Conclusion: On for the red line with both high leverage and Cook's D but also one
+# outlier for the blue line from only Cook's D.
 
 ##### 3 (e) Comparing#####
-# Compare the leverage, residual, and CookÃ¢Â€Â™s distance plots with those for the temperature
+# Compare the leverage, residual, and Cook's distance plots with those for the temperature
 # model from 2.(b). Which model seems best?
 
 #install.packages("gridExtra")
@@ -475,14 +439,8 @@ grid.arrange(plotLevTemp2bOutliers, plotLevPressure3aOutliers, nrow=1, ncol=2)
 grid.arrange(plotResTemp2b, plotResPressure3a, nrow=1, ncol=2)
 grid.arrange(plotCooksDTemp2b, plotCooksDPressure3a, nrow=1, ncol=2)
 
-# Conslusion: Lower leverage outliers for temperature, deviance residuals maybe better for
-# pressure and lower Cook's D for temperature as well.
-
-
-
-# Ans: RÃ„TT CONCLUSION????????????!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# Temp
-
+# Conslusion: The model with temperature looks better, looking at leverage outliers,
+# deviance residuals Cook's D.
 
 ##### 3 (g) AIC and BIC#####
 (collectAIC <- data.frame(
@@ -505,21 +463,36 @@ collectAIC$loglik <-
 
 collectAIC$R2CS <- 1 - (exp(lnL0 - collectAIC$loglik))^(2/nrow(weather))
 collectAIC$R2N <- collectAIC$R2CS/R2CSMax
+collectAIC
+
+# Conclusion: R2 Cox-Snell and R2 Nagelkerke higher for model3a with pressure.
 
 
 
-#  TODO: TAR BORT RÃ„TT AV DET SOM SKA BORT EFTER ÃƒÂ–EVERAGE, RESIDUALS AND COOKS D
+# KONSTIGT ATT AIC/BIC R2 VÄLJER PRESSURE MEDAN COOKS D, LEVERAGE OCH DEVIANCE VÄLJER TEMP???
+# VAD SKA MAN SLUTLIGEN TITTA PÅ????????????????
 
 
 
 ##### 4 ...or both with location?####
+
 ##### 4 (a) Fit with interaction and location #####
-# Change reference location to Uppsala
+# Investigating the reference location
+table(weather$location, weather$lowrain)
+
+# Conclusion: Choose from lowrain (=1) since it has the smallest number of observations,
+# and from this choose Uppsala as reference since it got the largest of observations in
+# in this group.
+
+# Set Uppsala as reference location
 weather$location <- relevel(weather$location, "Uppsala")
 
 # Fit logistic regression model with temperature, pressure
-model4a <- glm(lowrain ~ temp*I(pressure - 1012) + location, family = "binomial", data = weather)
+model4a <- glm(lowrain ~ temp*I(pressure - 1012) + location,
+               family = "binomial", data = weather)
 summary(model4a) # pressure significant
+
+confint(model4a)
 
 # We use the deviance to construct a so called "likelihood ratio test". If D_diff bigger than
 # chisq quantile then reject H0 at sig. level alpha since the diff is chisq distributed.
@@ -548,102 +521,43 @@ pchisq(D_diff, f_diff, lower.tail = FALSE)
 
 ##### 4 (b) #####
 # predict for plotting
-lowrainPred <- cbind(weather, phat = predict(model4a, type = "response"))
+lowrainPred4a <- cbind(weather, phat = predict(model4a, type = "response"))
 
-# Lowrain vs temp, in subplots by location
-ggplot(lowrainPred, aes(x = temp, y = lowrain)) +
+# Lowrain vs temp with pressure in color, in subplots by location
+ggplot(lowrainPred4a, aes(x = temp, y = lowrain)) +
   geom_point() +
   facet_wrap(~ location) +
-  # geom_smooth(se = FALSE, linetype = "dashed") +
-  # geom_line(aes(y = phat), color = "red", size = 1) +
   geom_point(aes(y = phat, color = pressure)) +
   scale_color_viridis_c() +
-  xlab("Temperature (Ã‚Â°C)") +
+  xlab("Temperature (°C)") +
   ylab("Probability of low rain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature",
        color = "Pressure (hPa)") +
   theme(text = element_text(size = 14))
 # caption = "red = fitted line, blue dashed = moving average")
 
-
-
-
-# THE PREDICTED PROBABILITIES PHAT SER UT SOM SKIT HUR FÃƒÂ…R MAN PLOTTEN ATT SE OK UT??????????????
-
-
-# logit = logodds with s.e. for constructing C.I.
-lowrainPred <- cbind(
-  lowrainPred,
-  logit = predict(model4a, se.fit = TRUE))
-
-# Remove unnecessary variable:
-lowrainPred$logit.residual.scale <- NULL
-
-# Calculate confidence intervals for the log odds
-# standard normal quantile:
-(lambda <- qnorm(1 - 0.05/2))
-lowrainPred$logit.lwr <- lowrainPred$logit.fit - lambda*lowrainPred$logit.se.fit
-lowrainPred$logit.upr <- lowrainPred$logit.fit + lambda*lowrainPred$logit.se.fit
-
-# transform the log-odds intervals into C.I. for odds
-lowrainPred$odds.lwr <- exp(lowrainPred$logit.lwr)
-lowrainPred$odds.upr <- exp(lowrainPred$logit.upr)
-
-# transform the odds intervals into C.I. for p
-lowrainPred$p.lwr <- lowrainPred$odds.lwr/(1 + lowrainPred$odds.lwr)
-lowrainPred$p.upr <- lowrainPred$odds.upr/(1 + lowrainPred$odds.upr)
-head(lowrainPred)
-
-# plot the intervals:
-ggplot(lowrainPred, aes(x = temp, y = lowrain)) +
+# Same again but now lowrain vs pressure with temp in color, in subplots by location
+ggplot(lowrainPred4a, aes(x = pressure, y = lowrain)) +
   geom_point() +
   facet_wrap(~ location) +
-  geom_smooth(se = FALSE, linetype = "dashed") +
-  geom_line(aes(y = phat), color = "red", size = 1) +
-  geom_point(aes(y = phat, color = pressure)) +
-  scale_color_viridis_c() +
-  geom_ribbon(aes(ymin = p.lwr, ymax = p.upr), alpha = 0.2) +
-  xlab("Temperature (Â°C)") +
-  ylab("Probability of low rain") +
-  labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature",
-       color = "Pressure (hPa)") +
-  theme(text = element_text(size = 14))
-# caption = "red = fitted line, blue dashed = moving average")
-
-# Same again but now lowrain vs pressure, in subplots by location
-ggplot(lowrainPred, aes(x = pressure, y = lowrain)) +
-  geom_point() +
-  facet_wrap(~ location) +
-  geom_smooth(se = FALSE, linetype = "dashed") +
-  geom_line(aes(y = phat), color = "red", size = 1) +
   geom_point(aes(y = phat, color = temp)) +
   scale_color_viridis_c() +
-  geom_ribbon(aes(ymin = p.lwr, ymax = p.upr), alpha = 0.2) +
   xlab("Pressure (hPa)") +
   ylab("Probability of low rain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs pressure",
-       color = "Temperature (Ã‚Â°C)") +
+       color = "Temperature (°C)") +
   theme(text = element_text(size = 14))
 # caption = "red = fitted line, blue dashed = moving average")
 
-
-
-# THE PREDICTED PROBABILITIES PHAT SER UT SOM SKIT HÃ„R MED!! 
-
-
-
-# Which variable causes the largest variability in the probability of low rain:
-# temperature or air pressure? - Temperature.
-# In which location does the temperature add the most extra information,
-# in addition to pressure? - ????????????????????????????????????????????????
-
-
-# SVARA PÃƒ FRÃƒGORNA!!!!
-
+# Conslusion: Temperature causes the largest variability in the probability of low rain
+# by far. The probabilities are way more spread out for a given temperature compared
+# to pressure. Temperature add the most extra information for Abisko. If we look 
+# carefully, we can find sort of S-shaped kurves if we follow the data points with
+# the same pressure.
 
 ##### 4 (c) Weather in Lund#####
-# If you want to predict the probability of low rain in Lund, which variable seems more
-# useful, according to 4.(b): temperature or air pressure? - Pressure. 
+# Pressure seems more useful for predicting the probability of low rain in Lund
+# since a very nice S-shaped pattern is seen for this curve.
 
 # Extracting data for Lund only
 I_lund <- weather$location == "Lund"
@@ -676,32 +590,27 @@ step(model4c, k = log(nrow(weatherLund))) # default AIC (k = 2):
 # third step (after removing temp):
 # best = do nothing
 
-# Conclusion: Yes, it only chooses pressure although temparature was significant in model4c.
-
-
-
-# MEN TEMP SIGIFICANT??????????????? VARFÃ–R TAR BACKWARD BORT DEN????
-
-
+# Conclusion: Backward elimination chooses pressure although temparature was significant
+# in model4c. Expected since we before noticed that pressue gave most information.
 
 ##### 4 (d) Standardized deviance residuals #####
 # Leverage
 leverage <- influence(model4a)
 
 # Prediction
-lowrainPred <- cbind(weather, xbeta = predict(model4a), v = leverage$hat)
-head(lowrainPred)
+lowrainPred4a <- cbind(weather, xbeta = predict(model4a), v = leverage$hat)
+head(lowrainPred4a)
 
 # Deviance residuals
-lowrainPred$devres <- leverage$dev.res
+lowrainPred4a$devres <- leverage$dev.res
 
 # Standardised deviance residuals
-lowrainPred$devstd <- lowrainPred$devres/sqrt(1 - lowrainPred$v)
-head(lowrainPred)
+lowrainPred4a$devstd <- lowrainPred4a$devres/sqrt(1 - lowrainPred4a$v)
+head(lowrainPred4a)
 
 # Plot of standardized deviance residuals vs xbeta
 # with horizontal lines for 0, +-2 and +-4.
-(plotResXbeta4a <- ggplot(lowrainPred, aes(xbeta, devstd, color = as.factor(lowrain))) +
+(plotResXbeta4a <- ggplot(lowrainPred4a, aes(xbeta, devstd, color = as.factor(lowrain))) +
     geom_point() +
     geom_hline(yintercept = 0) +
     geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
@@ -716,7 +625,7 @@ head(lowrainPred)
 
 # Plot of standardized deviance residuals vs temperature with colors according
 # to pressure with horizontal lines for 0, +-2 and +-4.
-(plotResTemp4a <- ggplot(lowrainPred, aes(x = temp, y = devstd)) +
+(plotResTemp4a <- ggplot(lowrainPred4a, aes(x = temp, y = devstd)) +
     geom_point() +
     geom_hline(yintercept = 0) +
     geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
@@ -726,7 +635,7 @@ head(lowrainPred)
     facet_wrap(~ location) +
     geom_point(aes(y = devstd, color = pressure)) +
     scale_color_viridis_c() +
-    xlab("Temperature (Â°C)") +
+    xlab("Temperature (°C)") +
     ylab("Standardized deviance residuals") +
     labs(title = "Standardized deviance residuals vs temperature",
          color = "Pressure (hPa)") +
@@ -734,7 +643,7 @@ head(lowrainPred)
 
 # Plot of standardized deviance residuals vs pressure with colors according
 # to temperature with horizontal lines for 0, +-2 and +-4.
-(plotResPressure4a <- ggplot(lowrainPred, aes(x = pressure, y = devstd)) +
+(plotResPressure4a <- ggplot(lowrainPred4a, aes(x = pressure, y = devstd)) +
     geom_point() +
     geom_hline(yintercept = 0) +
     geom_hline(yintercept = c(-2, 2), color = "red", linetype = "dashed",
@@ -747,36 +656,32 @@ head(lowrainPred)
     xlab("Pressure (hPa)") +
     ylab("Standardized deviance residuals") +
     labs(title = "Standardized deviance residuals vs pressure",
-         color = "Temp. (Â°C)") +
+         color = "Temp. (°C)") +
     theme(text = element_text(size = 14)))
 
 # Plots for comparing
 grid.arrange(plotResTemp2b, plotResTemp4a, nrow=2, ncol=1)
 grid.arrange(plotResPressure3a, plotResPressure4a, nrow=2, ncol=1)
 
-# Any problematic residuals? Also compare with the plots in 2.(f ) and 3.(c). Have the
-# residuals improved?
-
-# Conclusion: Maybe some problematic residuals, mostly for Y = 1 (upper) and Uppsala (lower).
-
-
-
-
-# Hard to say if they hafe improved since we did not plot the both with color coding?????
-# HOW TO COMPARE?????
-
-
+# Conclusion: Some of the residual values looks better but some worse. For Lund and
+# Abisko they look fine but for Uppsala some high residuals. In generall no
+# problematic residuals. 
 
 ##### 4 (e) Cook's D #####
 # Add Cook's D
-lowrainPred$D <- cooks.distance(model4a)
-head(lowrainPred)
+lowrainPred4a$D <- cooks.distance(model4a)
+head(lowrainPred4a)
+
+# Highlighting the 2 possible outliers (seen when plotting below)
+outliersCooksD4a <- which(lowrainPred4a$D > 0.02)
 
 # Plot of Cook's D vs xbeta, horizontal line for 4/n
-(plotCooksDXbeta4a <- ggplot(lowrainPred, aes(xbeta, D, color = as.factor(lowrain))) +
+(plotCooksDXbeta4a <- ggplot(lowrainPred4a, aes(xbeta, D, color = as.factor(lowrain))) +
     geom_point() +
     geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
                size = 1) +
+    geom_point(data = lowrainPred4a[outliersCooksD4a, ], color = "red",
+               shape = 24, size = 3) +
     facet_grid(cols = vars(lowrain)) +
     xlab("xbeta") +
     ylab("Cook's D") +
@@ -786,14 +691,16 @@ head(lowrainPred)
 
 # Plot of Cook's D vs temperature with colors according
 # to pressure, horizontal line for 4/n
-(plotCooksDTemp4a <- ggplot(lowrainPred, aes(temp, D)) +
+(plotCooksDTemp4a <- ggplot(lowrainPred4a, aes(temp, D)) +
     geom_point() +
     geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
                size = 1) +
-    facet_wrap(~ location) +
+    geom_point(data = lowrainPred4a[outliersCooksD4a, ], color = "red",
+               shape = 24, size = 3) +
+    facet_grid(rows = vars(lowrain), cols = vars(location)) +
     geom_point(aes(y = D, color = pressure)) +
     scale_color_viridis_c() +
-    xlab("Temperature (Â°C)") +
+    xlab("Temperature (°C)") +
     ylab("Cook's D") +
     labs(title = "Cook's D vs temperature",
          color = "Pressure (hPa)") +
@@ -801,24 +708,29 @@ head(lowrainPred)
 
 # Plot of Cook's D vs pressure with colors according
 # to temperature, horizontal line for 4/n
-(plotCooksDPressure4a <- ggplot(lowrainPred, aes(pressure, D)) +
+(plotCooksDPressure4a <- ggplot(lowrainPred4a, aes(pressure, D)) +
     geom_point() +
     geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
                size = 1) +
-    facet_wrap(~ location) +
+    geom_point(data = lowrainPred4a[outliersCooksD4a, ], color = "red",
+               shape = 24, size = 3) +
+    facet_grid(rows = vars(lowrain), cols = vars(location)) +
     geom_point(aes(y = D, color = temp)) +
     scale_color_viridis_c() +
     xlab("Pressure (hPa)") +
     ylab("Cook's D") +
     labs(title = "Cook's D vs pressure",
-         color = "Temp. (Â°C)") +
+         color = "Temp. (°C)") +
     theme(text = element_text(size = 14)))
 
-# Plot for comparing
-grid.arrange(plotCooksDTemp2b, plotCooksDTemp4a, nrow=1, ncol=2)
-grid.arrange(plotCooksDPressure3a, plotCooksDPressure4a, nrow=1, ncol=2)
+# Conclusion: At least two alarmingly high outliers, will be removed later.
 
-# Conclusion: Better for pressure but not temp.
+# Plot for comparing
+grid.arrange(plotCooksDTemp2b, plotCooksDPressure3a, nrow=2, ncol=1)
+plotCooksDTemp4a
+plotCooksDPressure4a
+
+# Conclusion: Better Cook's D for pressure but not temp.
 
 ##### 4 (g) AIC and BIC #####
 (collectAIC <- data.frame(
@@ -850,16 +762,23 @@ library(pROC)
 library(ResourceSelection)
 
 ##### 5 (a) #####
+# Removing the previously identified outliers from our data set and re-fit ALL models with
+# this data set, otherwise we cannot use predict with the new data set since the old models
+# are fitted with the old data set. Use update-function to avoid re-fitting manually.
+weatherExc <- weather[-outliersCooksD4a, ]
+
 # Predicted probabilities phat for model2b, model3a and model4a
 predPhat <- cbind(
-  weather,
-  phat2b = predict(model2b, type = "response"),
-  phat3a = predict(model3a, type = "response"),
-  phat4a = predict(model4a, type = "response"))
+  weatherExc,
+  phat0 = predict(update(model0, data = weatherExc), type = "response"),
+  phat2b = predict(update(model2b, data = weatherExc), type = "response"),
+  phat3a = predict(update(model3a, data = weatherExc), type = "response"),
+  phat4a = predict(update(model4a, data = weatherExc), type = "response"))
 head(predPhat)
 
-# Confusion matrix
-# Calculate Y-hat using model2b, model3a and model4a
+# Confusion matrix and specificity, sensitivity, accuracy and precision
+# Calculate Y-hat (i.e. lowrain or not lowrain) using model2b, model3a and model4a
+predPhat$yhat0 <- as.numeric(predPhat$phat0 > 0.5)
 predPhat$yhat2b <- as.numeric(predPhat$phat2b > 0.5)
 predPhat$yhat3a <- as.numeric(predPhat$phat3a > 0.5)
 predPhat$yhat4a <- as.numeric(predPhat$phat4a > 0.5)
@@ -894,151 +813,365 @@ predPhat$yhat4a <- as.numeric(predPhat$phat4a > 0.5)
   Accuracy = c(accu2b, accu3a, accu4a),
   Precision = c(prec2b, prec3a, prec4a)))
 
-#Is any of the models out-performing the others in all, or some, of the aspects?
+# Conclusion: model4a has by far the best sensitivity, other values similar to each other.
 
-# Conclusion: TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!
+# Calculate and plot the ROC-curves for the three models, and calculate their AUC, with
+# 95% confidence intervals. Also perform a test comparing the AUC for model 2.(b)
+# and 3.(a). Comment on the results.
 
-# ##### 5 (b) #####
-# # ROC-curves####
-# # Calculate for model 0 and 3.
-# (roc.0 <- roc(highpm10 ~ p.0, data = pred.phat))
-# # save the coordinates in a data frame for plotting.
-# roc.df.0 <- coords(roc.0, transpose = FALSE)
-# roc.df.0$model <- "0"
-# roc.df.0
-# 
-# (roc.3 <- roc(highpm10 ~ p.3, data = pred.phat))
-# # save the coordinates in a data frame for plotting.
-# roc.df.3 <- coords(roc.3, transpose = FALSE)
-# roc.df.3$model <- "3"
-# head(roc.df.3)
-# 
-# # Create the data for the Ideal model by hand:
-# roc.df.ideal <- data.frame(sensitivity = c(0, 1, 1),
-#                            specificity = c(1, 1, 0),
-#                            threshold = c(NA, NA, NA))
-# roc.df.ideal$model <- "ideal"
-# 
-# # experiment with different values of "limit" to find the
-# # optimal combination of sens and spec.
-# limit <- 0.635
-# roc.df.3[roc.df.3$sensitivity > limit & 
-#            roc.df.3$specificity > limit, ]
-# ##
-# I_max.3 <- which(roc.df.3$sensitivity > limit & 
-#                    roc.df.3$specificity > limit)
-# 
-# # Built-in function for plotting one Roc-curve
-# # Note that the x-axis is reversed!
-# # If we want the diagonal with geom_abline, it has to be reversed!
-# # Since both axes are 0-1, we want a square plot area:
-# # + coord_fixed()
-# ggroc(roc.3) +
-#   geom_abline(intercept = 1, slope = 1, linetype = "dashed") +
-#   coord_fixed() +
-#   labs(title = "ROC-curve for model 3")
-# 
-# # Plot the three ROC-curves:
-# # Use geom_path() instead of geom_line()
-# #
-# # For model 3 the curve is color coded according to
-# # the threshold. The color scheme is set by
-# # + scale_color_gradientn(colours = rainbow(5)) +
-# #
-# # Note that the x-axis is reversed!
-# # + scale_x_reverse()
-# # You could use 1 - spec instead.
-# # If we want the diagonal with geom_abline, it has to be reversed!
-# #
-# # Since both axes are 0-1, we want a square plot area:
-# # + coord_fixed()
-# #
-# ggplot(roc.df.3, aes(specificity, sensitivity)) +
-#   geom_path(aes(color = threshold), size = 2) +
-#   geom_path(data = roc.df.ideal, color = "black", size = 1) +
-#   geom_path(data = roc.df.0, color = "red", size = 1,
-#             linetype = "dashed") +
-#   geom_point(data = roc.df.3[I_max.3, ], color = "black", size = 3) +
-#   #  geom_abline(intercept = 1, slope = 1, linetype = "dashed") +
-#   scale_color_gradientn(colours = rainbow(5)) +
-#   coord_fixed() +       # square plotting area
-#   scale_x_reverse() +   # Reverse scale on the x-axis!
-#   labs(title = "ROC-curve for model 3",
-#        caption = "Black dot = optimal threshold") +
-#   theme(text = element_text(size = 14))
-# 
-# # ROC-curves for all models####
-# roc.1 <- roc(highpm10 ~ p.1, data = pred.phat)
-# roc.df.1 <- coords(roc.1, transpose = FALSE)
-# roc.df.1$model <- "1"
-# roc.2 <- roc(highpm10 ~ p.2, data = pred.phat)
-# roc.df.2 <- coords(roc.2, transpose = FALSE)
-# roc.df.2$model <- "2"
-# roc.4 <- roc(highpm10 ~ p.4, data = pred.phat)
-# roc.df.4 <- coords(roc.4, transpose = FALSE)
-# roc.df.4$model <- "4"
-# roc.5 <- roc(highpm10 ~ p.5, data = pred.phat)
-# roc.df.5 <- coords(roc.5, transpose = FALSE)
-# roc.df.5$model <- "5"
-# roc.6 <- roc(highpm10 ~ p.6, data = pred.phat)
-# roc.df.6 <- coords(roc.6, transpose = FALSE)
-# roc.df.6$model <- "6"
-# roc.red <- roc(highpm10 ~ p.red, data = pred.phat)
-# roc.df.red <- coords(roc.red, transpose = FALSE)
-# roc.df.red$model <- "red"
-# roc.oslo <- roc(highpm10 ~ p.oslo, data = pred.phat)
-# roc.df.oslo <- coords(roc.oslo, transpose = FALSE)
-# roc.df.oslo$model <- "oslo"
-# 
-# roc.df <- rbind(roc.df.0, roc.df.1, roc.df.2, roc.df.3, 
-#                 roc.df.4, roc.df.5, roc.df.6, roc.df.red,
-#                 roc.df.oslo)
-# 
-# # Plot all the curves, in different colors:
-# ggplot(roc.df, aes(specificity, sensitivity,
-#                    color = model)) +
-#   geom_path(size = 1) +
-#   coord_fixed() +       # square plotting area
-#   scale_x_reverse() +   # Reverse scale on the x-axis!
-#   labs(title = "ROC-curves for all the models") +
-#   theme(text = element_text(size = 14))
-# 
-# # AUC####
-# roc.3
-# auc(roc.3)
-# # Confidence interval for AUC
-# (ci.3 <- ci(roc.3))
-# # lower limit:
-# ci.3[1]
-# # AUC:
-# ci.3[2]
-# # upper limit:
-# ci.3[3]
-# 
-# #Collect AUC and intervals for all the models:
-# (aucs <- 
-#     data.frame(
-#       model = c("0", "1", "2", "red", "3", "4", "5", "6", "oslo"),
-#       auc = c(auc(roc.0), auc(roc.1), auc(roc.2), auc(roc.red),
-#               auc(roc.3), auc(roc.4), auc(roc.5), auc(roc.6),
-#               auc(roc.oslo)),
-#       lwr = c(ci(roc.0)[1], ci(roc.1)[1],
-#               ci(roc.2)[1], ci(roc.red)[1],
-#               ci(roc.3)[1], ci(roc.4)[1],
-#               ci(roc.5)[1], ci(roc.6)[1],
-#               ci(roc.oslo)[1]),
-#       upr = c(ci(auc(roc.0))[3], ci(auc(roc.1))[3],
-#               ci(auc(roc.2))[3], ci(auc(roc.red))[3],
-#               ci(auc(roc.3))[3], ci(auc(roc.4))[3],
-#               ci(auc(roc.5))[3], ci(auc(roc.6))[3],
-#               ci(auc(roc.oslo))[3])))
-# 
-# # Compare the AUC for the models:
-# roc.test(roc.0, roc.oslo)
-# roc.test(roc.1, roc.oslo)
-# roc.test(roc.2, roc.oslo)
+# ##### 5 (b) ROC-curves #####
+# ROC-curves for all models
+(roc0 <- roc(lowrain ~ phat0, data = predPhat))
+# save the coordinates in a data frame for plotting.
+rocDf0 <- coords(roc0, transpose = FALSE)
+rocDf0$model <- "0"
+
+roc2b <- roc(lowrain ~ phat2b, data = predPhat)
+rocDf2b <- coords(roc2b, transpose = FALSE)
+rocDf2b$model <- "2b"
+
+roc3a <- roc(lowrain ~ phat3a, data = predPhat)
+rocDf3a <- coords(roc3a, transpose = FALSE)
+rocDf3a$model <- "3a"
+
+roc4a <- roc(lowrain ~ phat4a, data = predPhat)
+rocDf4a <- coords(roc4a, transpose = FALSE)
+rocDf4a$model <- "4a"
+
+rocDf <- rbind(rocDf0, rocDf2b, rocDf3a, rocDf4a)
+
+# Create the data for the Ideal model by hand (to illustate ideal ROC-curve in graph)
+rocDfIdeal <- data.frame(sensitivity = c(0, 1, 1),
+                           specificity = c(1, 1, 0),
+                           threshold = c(NA, NA, NA))
+rocDfIdeal$model <- "ideal"
+
+# Finding the optimal limit for model4a for as high sens and spec as possible (try manually)
+limit4a <- 0.732
+rocDf4a[rocDf4a$sensitivity > limit4a & 
+          rocDf4a$specificity > limit4a, ]
+
+maxIndex4a <- which(rocDf4a$sensitivity > limit4a & 
+                      rocDf4a$specificity > limit4a)
+
+threshold4a <- rocDf4a$threshold[maxIndex4a]
 
 
-##### 5 (c) #####
+# Built-in function for plotting one Roc-curve
+# Note that the x-axis is reversed!
+# If we want the diagonal with geom_abline, it has to be reversed!
+# Since both axes are 0-1, we want a square plot area: + coord_fixed()
 
-##### 5 (d) #####
+# ROC-curve for model4a
+ggroc(roc4a) +
+  geom_abline(intercept = 1, slope = 1, linetype = "dashed") +
+  coord_fixed() +
+  labs(title = "ROC-curve for model4a")
+
+# Plot the three ROC-curves:
+# Use geom_path() instead of geom_line()
+#
+# For model4a the curve is color coded according to
+# the threshold. The color scheme is set by
+# + scale_color_gradientn(colours = rainbow(5)) +
+
+# ROC-curve for model4a with ideal ROC-curve and threshold with color
+ggplot(rocDf4a, aes(specificity, sensitivity)) +
+  geom_path(aes(color = threshold), size = 2) +
+  geom_path(data = rocDfIdeal, color = "black", size = 1) +
+  geom_path(data = rocDf0, color = "red", size = 1,
+            linetype = "dashed") +
+  geom_point(data = rocDf4a[maxIndex4a, ], color = "black", size = 3) +
+  #  geom_abline(intercept = 1, slope = 1, linetype = "dashed") +
+  scale_color_gradientn(colours = rainbow(5)) +
+  coord_fixed() +       # square plotting area
+  scale_x_reverse() +   # Reverse scale on the x-axis!
+  labs(title = "ROC-curve for model4a") +
+  theme(text = element_text(size = 14))
+# caption = "Black dot = optimal threshold"
+
+# Plot all the curves in different colors
+ggplot(rocDf, aes(specificity, sensitivity,
+                   color = model)) +
+  geom_path(data = rocDfIdeal, color = "black", size = 1) +
+  geom_path(size = 1) +
+  coord_fixed() +       # square plotting area
+  scale_x_reverse() +   # Reverse scale on the x-axis!
+  xlab("Specificity") +
+  ylab("Sensitivity") +
+  labs(title = "ROC-curves for all the models") +
+  theme(text = element_text(size = 14))
+
+# Calculating AUC
+roc4a
+auc(roc4a)
+# CI for AUC
+(ci4a <- ci(roc4a))
+# lower limit (index 1)
+ci4a[1]
+# AUC (index 2)
+ci4a[2]
+# upper limit (index 3)
+ci4a[3]
+
+#Collect AUC and intervals for all the models:
+(aucs <- 
+    data.frame(
+      model = c("0", "2b", "3a", "4a"),
+      auc = c(auc(roc0), auc(roc2b), auc(roc3a), auc(roc4a)),
+      lwr = c(ci(roc0)[1], ci(roc2b)[1],
+              ci(roc3a)[1], ci(roc4a)[1]),
+      upr = c(ci(auc(roc0))[3], ci(auc(roc2b))[3],
+              ci(auc(roc3a))[3], ci(auc(roc4a))[3])))
+
+# Compare the AUC for the models:
+roc.test(roc2b, roc3a)
+roc.test(roc2b, roc4a)
+roc.test(roc3a, roc4a)
+
+# Conclusion: model4a biggest AUC, comparing 2b to 3a we get no significant difference.
+
+##### 5 (c) Opitmal limit #####
+# Finding the optimal limit for model2b and model3a (try manually)
+limit2b <- 0.606
+rocDf2b[rocDf2b$sensitivity > limit2b & 
+          rocDf2b$specificity > limit2b, ]
+
+maxIndex2b <- which(rocDf2b$sensitivity > limit2b & 
+                      rocDf2b$specificity > limit2b)
+
+threshold2b <- rocDf2b$threshold[maxIndex2b]
+
+limit3a <- 0.655
+rocDf3a[rocDf3a$sensitivity > limit3a & 
+          rocDf3a$specificity > limit3a, ]
+
+maxIndex3a <- which(rocDf3a$sensitivity > limit3a & 
+                      rocDf3a$specificity > limit3a)
+
+threshold3a <- rocDf3a$threshold[maxIndex3a]
+
+predPhat$yhatOpt2b <- as.numeric(predPhat$phat2b > threshold2b)
+predPhat$yhatOpt3a <- as.numeric(predPhat$phat3a > threshold3a)
+predPhat$yhatOpt4a <- as.numeric(predPhat$phat4a > threshold4a)
+
+(col012bOpt <- table(predPhat$yhatOpt2b))
+(confusionOpt2b <- table(predPhat$lowrain, predPhat$yhatOpt2b))
+(specOpt2b <- confusionOpt2b[1, 1] / row01[1])
+(sensOpt2b <- confusionOpt2b[2, 2] / row01[2])
+(accuOpt2b <- sum(diag(confusionOpt2b)) / sum(confusionOpt2b))
+(precOpt2b <- confusionOpt2b[2, 2] / col012bOpt[2])
+
+(col013aOpt <- table(predPhat$yhatOpt3a))
+(confusionOpt3a <- table(predPhat$lowrain, predPhat$yhatOpt3a))
+(specOpt3a <- confusionOpt3a[1, 1] / row01[1])
+(sensOpt3a <- confusionOpt3a[2, 2] / row01[2])
+(accuOpt3a <- sum(diag(confusionOpt3a)) / sum(confusionOpt3a))
+(precOpt3a <- confusionOpt3a[2, 2] / col013aOpt[2])
+
+(col014aOpt <- table(predPhat$yhatOpt4a))
+(confusionOpt4a <- table(predPhat$lowrain, predPhat$yhatOpt4a))
+(specOpt4a <- confusionOpt4a[1, 1] / row01[1])
+(sensOpt4a <- confusionOpt4a[2, 2] / row01[2])
+(accuOpt4a <- sum(diag(confusionOpt4a)) / sum(confusionOpt4a))
+(precOpt4a <- confusionOpt4a[2, 2] / col014aOpt[2])
+
+(collectconfusionOpt <- data.frame(
+  model = c("model2b", "model3a", "model4a"),
+  Specificity = c(specOpt2b, specOpt3a, specOpt4a),
+  Sensitivity = c(sensOpt2b, sensOpt3a, sensOpt4a),
+  Accuracy = c(accuOpt2b, accuOpt3a, accuOpt4a),
+  Precision = c(precOpt2b, precOpt3a, precOpt4a)))
+
+# Conslusion: Lower spec but higher sens, also lower accu and prec.
+
+# Calculating AUC
+roc4a
+auc(roc4a)
+# CI for AUC
+(ci4a <- ci(roc4a))
+# lower limit (index 1)
+ci4a[1]
+# AUC (index 2)
+ci4a[2]
+# upper limit (index 3)
+ci4a[3]
+
+#Collect AUC and intervals for all the models:
+(aucs <- 
+    data.frame(
+      model = c("0", "2b", "3a", "4a"),
+      auc = c(auc(roc0), auc(roc2b), auc(roc3a), auc(roc4a)),
+      lwr = c(ci(roc0)[1], ci(roc2b)[1],
+              ci(roc3a)[1], ci(roc4a)[1]),
+      upr = c(ci(auc(roc0))[3], ci(auc(roc2b))[3],
+              ci(auc(roc3a))[3], ci(auc(roc4a))[3])))
+
+# Compare the AUC for the models:
+roc.test(roc2b, roc3a)
+roc.test(roc2b, roc4a)
+roc.test(roc3a, roc4a)
+
+##### 5 (d) Hosmer-Lemeshow-test#####
+# Hosmer-Lemeshow-test
+#plot in sorted p-order
+# order(variable) gives the ranks for the values in variable.
+# It can then be used to sort the data frame:
+predSort2b <- predPhat[order(predPhat$phat2b), ]
+predSort2b$rank <- seq(1, nrow(predSort2b))
+head(predSort2b)
+
+# Divide the n=1091 observations into g=10 groups:
+n <- nrow(predSort)
+g <- 10
+# with ng =  observations each:
+ng <- n/g
+
+# Plot p_i and Y_i
+# Add i vertical jitter to Y_i to separate them
+ggplot(pred.sort, aes(rank, p.3)) +
+  geom_point() +
+  geom_jitter(aes(y = highpm10), height = 0.01) +
+  geom_vline(xintercept = seq(ng, nrow(pred.sort) - ng, ng)) +
+  labs(title = "Model 3: Estimated probabilities by increasing size",
+       caption = "g = 10 groups",
+       x = "(i) = 1,...,n", y = "p-hat") +
+  theme(text = element_text(size = 14))
+
+# HL by hand####
+# The following can be done using the output of the
+# hoslem.test function, see below.
+# I do is here to illustrate the steps.
+
+# A for-loop to set the group numbers:
+pred.sort$group <- NA
+for (k in seq(1, g)) {
+  I <- (k - 1)*ng + seq(1, ng)
+  pred.sort$group[I] <- k
+}
+head(pred.sort)
+
+# Calculate Observed and Expected in each group:
+# aggregate(y ~ x, FUN = mean) calculates the mean of y
+# separately for each group.
+# merge(data1, data2) joins two data frames using any common
+# variables as keys, in this case, "group".
+
+# Number of successes:
+OE1 <- merge(aggregate(highpm10 ~ group, data = pred.sort, FUN = sum),
+             aggregate(p.3 ~ group, data = pred.sort, FUN = sum))
+OE1
+# Number of failures = n_g - successes:
+OE0 <- OE1
+OE0$highpm10 <- ng - OE1$highpm10
+OE0$p.3 <- ng - OE1$p.3
+# A variable to cure for color coding:
+OE1$outcome <- "O1k, E1k"
+OE0$outcome <- "O0k, E0k"
+# Bind the two data sets as rows (r):
+(OE <- rbind(OE1, OE0))
+
+# And plot:
+# Set the tickmarks on the x-axis to integers 1,...,g
+ggplot(OE, aes(group, p.3, color = outcome)) +
+  geom_line(size = 1) +
+  geom_line(aes(y = highpm10), linetype = "dashed", size = 1) +
+  labs(title = "Model 3: Observed and expected in each group",
+       caption = "solid = expected, dashed = observed",
+       y = "number of observations") +
+  theme(text = element_text(size = 14)) +
+  scale_x_continuous(breaks = seq(1, g))
+
+# The test:
+(chi2HL <- sum((OE$highpm10 - OE$p.3)^2/OE$p.3))
+# chi2-quantile to compare with:
+qchisq(1 - 0.05, g - 2)
+# or P-value:
+pchisq(chi2HL, g - 2, lower.tail = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+# HL for model2b using build in function hoslem.test
+length(model2b$coefficients)
+
+# We need g > 2 since p = 1 while the smallest expected value in each group should be
+# at least approx 5. Manually found the best g = 7
+(HL2b <- hoslem.test(predSort$lowrain, predSort$phat2b, g = 7))
+HL2b$expected
+
+# Collect the data in a useful form for plotting:
+(HLDf2b <- data.frame(group = seq(1, 7),
+                       Obs0 = HL2b$observed[, 1],
+                       Obs1 = HL2b$observed[, 2],
+                       Exp0 = HL2b$expected[, 1],
+                       Exp1 = HL2b$expected[, 2]))
+
+ggplot(HLDf2b, aes(group, Obs0)) +
+  geom_line(linetype = "dashed", color = "red", size = 1) +
+  geom_line(aes(y = Obs1), linetype = "dashed", size = 1) +
+  geom_line(aes(y = Exp0), color = "red", size = 1) +
+  geom_line(aes(y = Exp1), size = 1) +
+  labs(title = "Model2b: Observed and expected in each group",
+       caption = "solid = expected, dashed = observed, red = 0, black = 1",
+       y = "number of observations") +
+  scale_x_continuous(breaks = seq(1, 11)) +
+  theme(text = element_text(size = 14))
+
+# HL for model3a (nite 100 ´på att g =9 är bäst, kolla upp det)
+length(model3a$coefficients)
+
+(HL3a <- hoslem.test(predSort$lowrain, predSort$phat3a, g = 9))
+HL3a$expected
+
+# Collect the data in a useful form for plotting:
+(HLDf3a <- data.frame(group = seq(1, 9),
+                      Obs0 = HL3a$observed[, 1],
+                      Obs1 = HL3a$observed[, 2],
+                      Exp0 = HL3a$expected[, 1],
+                      Exp1 = HL3a$expected[, 2]))
+
+ggplot(HLDf3a, aes(group, Obs0)) +
+  geom_line(linetype = "dashed", color = "red", size = 1) +
+  geom_line(aes(y = Obs1), linetype = "dashed", size = 1) +
+  geom_line(aes(y = Exp0), color = "red", size = 1) +
+  geom_line(aes(y = Exp1), size = 1) +
+  labs(title = "Model3a: Observed and expected in each group",
+       caption = "solid = expected, dashed = observed, red = 0, black = 1",
+       y = "number of observations") +
+  scale_x_continuous(breaks = seq(1, 11)) +
+  theme(text = element_text(size = 14))
+
+# HL for model4a (use 6 or 7, inte säker på hur vi bäst väljer......)
+length(model4a$coefficients)
+
+# Starting at p + 2 = 7
+(HL4a <- hoslem.test(predSort$lowrain, predSort$phat4a, g = 7)) # 7 is the best choise
+HL4a$expected
+
+# Collect the data in a useful form for plotting:
+(HLDf4a <- data.frame(group = seq(1, 7),
+                      Obs0 = HL4a$observed[, 1],
+                      Obs1 = HL4a$observed[, 2],
+                      Exp0 = HL4a$expected[, 1],
+                      Exp1 = HL4a$expected[, 2]))
+
+ggplot(HLDf4a, aes(group, Obs0)) +
+  geom_line(linetype = "dashed", color = "red", size = 1) +
+  geom_line(aes(y = Obs1), linetype = "dashed", size = 1) +
+  geom_line(aes(y = Exp0), color = "red", size = 1) +
+  geom_line(aes(y = Exp1), size = 1) +
+  labs(title = "Model4a: Observed and expected in each group",
+       caption = "solid = expected, dashed = observed, red = 0, black = 1",
+       y = "number of observations") +
+  scale_x_continuous(breaks = seq(1, 11)) +
+  theme(text = element_text(size = 14))
+
+
