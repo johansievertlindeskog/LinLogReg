@@ -42,7 +42,7 @@ library(ggplot2) # activate ggplot2 commands
                          aes(x = temp, y = lowrain )) + 
     geom_smooth(method = loess) + # moving average
     geom_point(size = 1) +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (Â°C)") +
     ylab("Lowrain (1/0)") +
     labs(title = "Probability of low rain vs temperature") +
     theme(text = element_text(size = 18))
@@ -63,7 +63,7 @@ cbind(model2b$coefficients,
 cbind(exp(model2b$coefficients),
       exp(confint(model2b)))
 
-# Wald test: kolla på belopp av z-värde och jämför med kvantilen, eller se p-värdet som vanligt.
+# Wald test: kolla pÃ¥ belopp av z-vÃ¤rde och jÃ¤mfÃ¶r med kvantilen, eller se p-vÃ¤rdet som vanligt.
 
 # logistic regression model
 # log(Y) = B0 + B1*x + epsilon
@@ -71,9 +71,9 @@ cbind(exp(model2b$coefficients),
 # Y = exp(B0) * exp(B1)^x * exp(epsilon) = a * b^x * exp(epsilon)
 # where a = exp(B0) and b = exp(B1)
 
-# How does the odds of low rain change when the temperature is increased by 1 Â°C?
+# How does the odds of low rain change when the temperature is increased by 1 Ã‚Â°C?
 # Ans: b^1 = 0.93 i.e. odds decreases by 7%
-# How does the odds of low rain change when the temperature is decreased by 1 Â°C?
+# How does the odds of low rain change when the temperature is decreased by 1 Ã‚Â°C?
 # Ans: b^(-1) = 0.93^-1 = 1.08 i.e. odds increases by 8%
 
 ##### 2 (c) #####
@@ -109,10 +109,10 @@ pred2c$p.upr <- pred2c$odds.upr/(1 + pred2c$odds.upr)
 head(pred2c)
 
 # There is a difference in the probability of low rain when we change the temparature from
-# -10 °C to -9 °C, compared with when we change from 9 °C to 10 °C. This is due to the S-shape
+# -10 Â°C to -9 Â°C, compared with when we change from 9 Â°C to 10 Â°C. This is due to the S-shape
 # of the probability curve, which is growing more slowly at probabilities closer to 0 and 1
 # compared to 0.5. However, the decrease is still, as shown before, 7% for the odds when
-# increasing the temperature with 1°C in both cases.
+# increasing the temperature with 1Â°C in both cases.
 
 ##### 2 (d) Lowrain vs temp #####
 # predict for plotting
@@ -123,7 +123,7 @@ ggplot(lowrainPred2b, aes(temp, lowrain)) +
   geom_point() +
   geom_smooth(se = FALSE, linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
-  xlab("Temperature (°C)") +
+  xlab("Temperature (Â°C)") +
   ylab("Lowrain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature") +
   theme(text = element_text(size = 15))
@@ -156,7 +156,7 @@ ggplot(lowrainPred2b, aes(temp, lowrain)) +
   geom_smooth(se = FALSE, linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
   geom_ribbon(aes(ymin = p.lwr, ymax = p.upr), alpha = 0.2) +
-  xlab("Temperature (°C)") +
+  xlab("Temperature (Â°C)") +
   ylab("Lowrain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature") +
 theme(text = element_text(size = 15))
@@ -168,25 +168,25 @@ leverage <- influence(model2b)
 lowrainPred2b <- cbind(weather, xbeta = predict(model2b), v = leverage$hat)
 head(lowrainPred2b)
 
-# xbetahat är vår linjära prediktor dvs logoddshat. Yhat är det vi modellerar
-# dvs lowrain eller not lowrain. xbetahat är värdena som vi drar slutsats ifrån
+# xbetahat Ã¤r vÃ¥r linjÃ¤ra prediktor dvs logoddshat. Yhat Ã¤r det vi modellerar
+# dvs lowrain eller not lowrain. xbetahat Ã¤r vÃ¤rdena som vi drar slutsats ifrÃ¥n
 # huruvida det var lowrain eller not lowrain.
 
 # Plot of leverage vs temperature with 1/n and 2(p+1)/n horizontal lines
 (plotLevTemp2b <- ggplot(lowrainPred2b, aes(temp, v, ymin = 0, color = as.factor(lowrain))) + 
     geom_point() +
     geom_hline(yintercept = c(I(1/nrow(weather)))) +
-    geom_hline(yintercept = 2*4/nrow(weather),
+    geom_hline(yintercept = 4/nrow(weather),
                color = "red", size = 1) +#(2*2 = 4 parameters)
     facet_wrap(~ lowrain) +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (Â°C)") +
     ylab("Leverage") +
     labs(title = "Leverage vs temperature",
          color = "Y") +
     theme(text = element_text(size = 14)))
 
-# Find all leverage above 2*4/nrow(weather) = 0.0073 (arbitrary choice):
-outliersLeverage <- which(lowrainPred2b$v > I(2*4/nrow(weather)))
+# Find all leverage above 0.006 (arbitrary choice):
+outliersLeverage <- which(lowrainPred2b$v > 0.006)
 
 # ... and highlight the outliers
 (plotLevTemp2bOutliers <- plotLevTemp2b +
@@ -213,7 +213,7 @@ head(lowrainPred2b)
                size = 1) +
     geom_hline(yintercept = c(-4, 4), color = "red", linetype = "dotted",
                size = 1) +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (Â°C)") +
     ylab("Standardized deviance residuals") +
     labs(title = "Standardized deviance residuals vs temperature",
          color = "Y") +
@@ -234,7 +234,7 @@ head(lowrainPred2b)
     geom_hline(yintercept = 4/nrow(weather), color = "red", linetype = "dotted",
                size = 1) +
     facet_grid(cols = vars(lowrain)) +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (Â°C)") +
     ylab("Cook's D") +
     labs(title = "Cook's D vs temp",
          color = "Y") +
@@ -243,7 +243,7 @@ head(lowrainPred2b)
 # Are there any observations that have had a large influence on the estimates?
 # Ans: Maybe some but since they are in a group together we keep them.
 # Are these observations the same as those that had the highest leverages?
-# Ans: Yes, one of the previous 4 for the red line, found when we dont have
+# Ans: Yes, some of the previous 4 for the red line, found when we dont have
 # low rain and the temperature is unusually low.
 
 ##### 3 ...or pressure...####
@@ -332,7 +332,7 @@ head(lowrainPred3a)
 (plotLevPressure3a <- ggplot(lowrainPred3a, aes(pressure, v, ymin = 0, color = as.factor(lowrain))) + 
     geom_point() +
     geom_hline(yintercept = c(I(1/nrow(weather)))) +
-    geom_hline(yintercept = 2*4/nrow(weather),
+    geom_hline(yintercept = 4/nrow(weather),
                color = "red", size = 1) +#(2*2 = 4 parameters)
     facet_wrap(~ lowrain) +
     xlab("Pressure (hPa)") +
@@ -340,8 +340,8 @@ head(lowrainPred3a)
     labs(title = "Leverage vs pressure", color = "Y") +
     theme(text = element_text(size = 14)))
 
-# Find all leverage above 2*4/nrow(weather) = 0.0073 (arbitrary choice):
-outliersLeverage <- which(lowrainPred3a$v > I(2*4/nrow(weather)))
+# Find all leverage above 0.006 (arbitrary choice):
+outliersLeverage <- which(lowrainPred3a$v > 0.006)
 
 # ... and highlight the outliers
 (plotLevPressure3aOutliers <- plotLevPressure3a +
@@ -415,7 +415,7 @@ outliersCooksD <- which(lowrainPred3a$D > 0.06)
          color = "Y") +
     theme(text = element_text(size = 14)))
 
-# Conclusion: On for the red line with both high leverage and Cook's D but also one
+# Conclusion: Some for the red line with both high leverage and Cook's D but also one
 # outlier for the blue line from only Cook's D.
 
 ##### 3 (e) Comparing #####
@@ -460,8 +460,8 @@ collectAIC
 
 
 
-# KONSTIGT ATT AIC/BIC R2 VÄLJER PRESSURE MEDAN COOKS D, LEVERAGE OCH DEVIANCE VÄLJER TEMP???
-# VAD SKA MAN SLUTLIGEN TITTA PÅ????????????????
+# KONSTIGT ATT AIC/BIC R2 VÃ„LJER PRESSURE MEDAN COOKS D, LEVERAGE OCH DEVIANCE VÃ„LJER TEMP???
+# VAD SKA MAN SLUTLIGEN TITTA PÃ…????????????????
 
 
 
@@ -520,7 +520,7 @@ ggplot(lowrainPred4a, aes(x = temp, y = lowrain)) +
   facet_wrap(~ location) +
   geom_point(aes(y = phat, color = pressure)) +
   scale_color_viridis_c() +
-  xlab("Temperature (°C)") +
+  xlab("Temperature (Â°C)") +
   ylab("Probability of low rain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs temperature",
        color = "Pressure (hPa)") +
@@ -536,7 +536,7 @@ ggplot(lowrainPred4a, aes(x = pressure, y = lowrain)) +
   xlab("Pressure (hPa)") +
   ylab("Probability of low rain") +
   labs(title = "Low precipitaion (=1) or Not low precipitaion (=0) vs pressure",
-       color = "Temperature (°C)") +
+       color = "Temperature (Â°C)") +
   theme(text = element_text(size = 14))
 # caption = "red = fitted line, blue dashed = moving average")
 
@@ -626,7 +626,7 @@ head(lowrainPred4a)
     facet_wrap(~ location) +
     geom_point(aes(y = devstd, color = pressure)) +
     scale_color_viridis_c() +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (Â°C)") +
     ylab("Standardized deviance residuals") +
     labs(title = "Standardized deviance residuals vs temperature",
          color = "Pressure (hPa)") +
@@ -647,7 +647,7 @@ head(lowrainPred4a)
     xlab("Pressure (hPa)") +
     ylab("Standardized deviance residuals") +
     labs(title = "Standardized deviance residuals vs pressure",
-         color = "Temp. (°C)") +
+         color = "Temp. (Â°C)") +
     theme(text = element_text(size = 14)))
 
 # Plots for comparing
@@ -691,7 +691,7 @@ outliersCooksD4a <- which(lowrainPred4a$D > 0.02)
     facet_grid(rows = vars(lowrain), cols = vars(location)) +
     geom_point(aes(y = D, color = pressure)) +
     scale_color_viridis_c() +
-    xlab("Temperature (°C)") +
+    xlab("Temperature (Â°C)") +
     ylab("Cook's D") +
     labs(title = "Cook's D vs temperature",
          color = "Pressure (hPa)") +
@@ -711,7 +711,7 @@ outliersCooksD4a <- which(lowrainPred4a$D > 0.02)
     xlab("Pressure (hPa)") +
     ylab("Cook's D") +
     labs(title = "Cook's D vs pressure",
-         color = "Temp. (°C)") +
+         color = "Temp. (Â°C)") +
     theme(text = element_text(size = 14)))
 
 # Conclusion: At least two alarmingly high outliers, will be removed later.
@@ -1077,7 +1077,7 @@ ggplot(HLDf2b, aes(group, Obs0)) +
   scale_x_continuous(breaks = seq(1, 11)) +
   theme(text = element_text(size = 14))
 
-# HL for model3a                                      (inte 100 på att g =9 är bäst, kolla upp det)
+# HL for model3a                                      (inte 100 pÃ¥ att g =9 Ã¤r bÃ¤st, kolla upp det)
 length(model3a$coefficients)
 
 (HL3a <- hoslem.test(predSort$lowrain, predSort$phat3a, g = 9))
@@ -1101,7 +1101,7 @@ ggplot(HLDf3a, aes(group, Obs0)) +
   scale_x_continuous(breaks = seq(1, 11)) +
   theme(text = element_text(size = 14))
 
-# HL for model4a                                    (use 6 or 7, inte säker på hur vi bäst väljer......)
+# HL for model4a                                    (use 6 or 7, inte sÃ¤ker pÃ¥ hur vi bÃ¤st vÃ¤ljer......)
 length(model4a$coefficients)
 
 # Starting at p + 2 = 7
