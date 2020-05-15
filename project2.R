@@ -176,8 +176,8 @@ head(lowrainPred2b)
 (plotLevTemp2b <- ggplot(lowrainPred2b, aes(temp, v, ymin = 0, color = as.factor(lowrain))) + 
     geom_point() +
     geom_hline(yintercept = c(I(1/nrow(weather)))) +
-    geom_hline(yintercept = 4/nrow(weather),
-               color = "red", size = 1) +#(2*2 = 4 parameters)
+    geom_hline(yintercept = 2*2/nrow(weather),
+               color = "red", size = 1) +#(2*nbr of parameters = 2*2)
     facet_wrap(~ lowrain) +
     xlab("Temperature (°C)") +
     ylab("Leverage") +
@@ -191,7 +191,7 @@ outliersLeverage <- which(lowrainPred2b$v > 0.006)
 # ... and highlight the outliers
 (plotLevTemp2bOutliers <- plotLevTemp2b +
     geom_point(data = lowrainPred2b[outliersLeverage, ], size = 3, 
-               color = "red", shape = 24) +
+               color = "black", shape = 24) +
     labs(title = "Leverage vs temperature")) #red = 2(p+1)/n, black = 0.0073
 
 # Conclusion: Some observations with high leverage.
@@ -236,14 +236,14 @@ head(lowrainPred2b)
     facet_grid(cols = vars(lowrain)) +
     xlab("Temperature (°C)") +
     ylab("Cook's D") +
-    labs(title = "Cook's D vs temp",
+    labs(title = "Cook's D vs temperature",
          color = "Y") +
     theme(text = element_text(size = 14)))
 
 # Are there any observations that have had a large influence on the estimates?
 # Ans: Maybe some but since they are in a group together we keep them.
 # Are these observations the same as those that had the highest leverages?
-# Ans: Yes, some of the previous 4 for the red line, found when we dont have
+# Ans: Yes, one of the previous 4 for the red line, found when we dont have
 # low rain and the temperature is unusually low.
 
 ##### 3 ...or pressure...####
@@ -332,8 +332,8 @@ head(lowrainPred3a)
 (plotLevPressure3a <- ggplot(lowrainPred3a, aes(pressure, v, ymin = 0, color = as.factor(lowrain))) + 
     geom_point() +
     geom_hline(yintercept = c(I(1/nrow(weather)))) +
-    geom_hline(yintercept = 4/nrow(weather),
-               color = "red", size = 1) +#(2*2 = 4 parameters)
+    geom_hline(yintercept = 2*2/nrow(weather),
+               color = "red", size = 1) + #(2*nbr of parametes = 2*2)
     facet_wrap(~ lowrain) +
     xlab("Pressure (hPa)") +
     ylab("Leverage") +
@@ -346,7 +346,7 @@ outliersLeverage <- which(lowrainPred3a$v > 0.006)
 # ... and highlight the outliers
 (plotLevPressure3aOutliers <- plotLevPressure3a +
     geom_point(data = lowrainPred3a[outliersLeverage, ], size = 3, 
-               color = "red", shape = 24) +
+               color = "black", shape = 24) +
     labs(title = "Leverage vs pressure")) #red = 2(p+1)/n, black = 0.0073
 
 # Conclusion: Some observations with high leverage but we will not remove them,
@@ -415,7 +415,7 @@ outliersCooksD <- which(lowrainPred3a$D > 0.06)
          color = "Y") +
     theme(text = element_text(size = 14)))
 
-# Conclusion: Some for the red line with both high leverage and Cook's D but also one
+# Conclusion: On for the red line with both high leverage and Cook's D but also one
 # outlier for the blue line from only Cook's D.
 
 ##### 3 (e) Comparing #####
@@ -458,13 +458,6 @@ collectAIC
 
 # Conclusion: R2 Cox-Snell and R2 Nagelkerke higher for model3a with pressure.
 
-
-
-# KONSTIGT ATT AIC/BIC R2 VÄLJER PRESSURE MEDAN COOKS D, LEVERAGE OCH DEVIANCE VÄLJER TEMP???
-# VAD SKA MAN SLUTLIGEN TITTA PÅ????????????????
-
-
-
 ##### 4 ...or both with location?####
 
 ##### 4 (a) Fit with interaction and location #####
@@ -487,6 +480,8 @@ confint(model4a)
 
 # We use the deviance to construct a so called "likelihood ratio test". If D_diff bigger than
 # chisq quantile then reject H0 at sig. level alpha since the diff is chisq distributed.
+
+# Remember to compare NESTED models when using anova for likelihood ratio test!
 
 # Compare with model2b using anova
 (anovaModel2b4a <- anova(model2b, model4a))
@@ -811,19 +806,19 @@ predPhat$yhat4a <- as.numeric(predPhat$phat4a > 0.5)
 (roc0 <- roc(lowrain ~ phat0, data = predPhat))
 # save the coordinates in a data frame for plotting.
 rocDf0 <- coords(roc0, transpose = FALSE)
-rocDf0$model <- "0"
+rocDf0$model <- "(5)"
 
 roc2b <- roc(lowrain ~ phat2b, data = predPhat)
 rocDf2b <- coords(roc2b, transpose = FALSE)
-rocDf2b$model <- "2b"
+rocDf2b$model <- "(6)"
 
 roc3a <- roc(lowrain ~ phat3a, data = predPhat)
 rocDf3a <- coords(roc3a, transpose = FALSE)
-rocDf3a$model <- "3a"
+rocDf3a$model <- "(7)"
 
 roc4a <- roc(lowrain ~ phat4a, data = predPhat)
 rocDf4a <- coords(roc4a, transpose = FALSE)
-rocDf4a$model <- "4a"
+rocDf4a$model <- "(8)"
 
 rocDf <- rbind(rocDf0, rocDf2b, rocDf3a, rocDf4a)
 
@@ -834,12 +829,14 @@ rocDfIdeal <- data.frame(sensitivity = c(0, 1, 1),
 rocDfIdeal$model <- "ideal"
 
 # Finding optimal threshold for model4a
-limit4a <- 0.732 # this value was found by trial and error (manually)
+limit4a <- 0.7339 # this value was found by trial and error (manually)
 rocDf4a[rocDf4a$sensitivity > limit4a & 
           rocDf4a$specificity > limit4a, ]
 
 maxIndex4a <- which(rocDf4a$sensitivity > limit4a & 
                       rocDf4a$specificity > limit4a)
+
+maxIndex4a <- maxIndex4a[2] # Pick out the one with the biggest specificity since same sensitivity
 threshold4a <- rocDf4a$threshold[maxIndex4a]
 
 # Built-in function for plotting one Roc-curve
@@ -883,7 +880,7 @@ ggplot(rocDf, aes(specificity, sensitivity,
   scale_x_reverse() +   # Reverse scale on the x-axis!
   xlab("Specificity") +
   ylab("Sensitivity") +
-  labs(title = "ROC-curves for all the models") +
+  labs(title = "ROC-curves") +
   theme(text = element_text(size = 14))
 
 # Calculating AUC (Area Under the Curve)
@@ -917,7 +914,7 @@ roc.test(roc3a, roc4a)
 
 ##### 5 (c) Opitmal threshold #####
 # Also finding optimal threshold for 2b and 3a
-limit2b <- 0.606 # this value was found by trial and error (manually)
+limit2b <- 0.607 # this value was found by trial and error (manually)
 rocDf2b[rocDf2b$sensitivity > limit2b & 
           rocDf2b$specificity > limit2b, ]
 
@@ -925,7 +922,7 @@ maxIndex2b <- which(rocDf2b$sensitivity > limit2b &
                       rocDf2b$specificity > limit2b)
 threshold2b <- rocDf2b$threshold[maxIndex2b]
 
-limit3a <- 0.655 # this value was found by trial and error (manually)
+limit3a <- 0.656 # this value was found by trial and error (manually)
 rocDf3a[rocDf3a$sensitivity > limit3a & 
           rocDf3a$specificity > limit3a, ]
 
@@ -972,15 +969,7 @@ predPhat$yhatOpt4a <- as.numeric(predPhat$phat4a > threshold4a)
 #plot in sorted p-order
 # order(variable) gives the ranks for the values in variable.
 # It can then be used to sort the data frame:
-predSort <- predPhat[order(predPhat$phat2b), ]
-
-
-
-
-# NOTE THAT WE SORTED ON MODEL2B SINCE WE UDES PHAT2B!!!!! USE SAME PREDSORT FOR OTHERS??????
-
-
-
+predSort <- predPhat[order(predPhat$phat2b), ] # Sorted for 2b, used for HL by hand
 
 predSort$rank <- seq(1, nrow(predSort))
 head(predSort)
@@ -1056,11 +1045,11 @@ length(model2b$coefficients)
 
 # so we need g > 2 since p = 1 while the smallest expected value in each group should be
 # at least approx 5. Manually found the best g = 7
-(HL2b <- hoslem.test(predSort$lowrain, predSort$phat2b, g = 7))
+(HL2b <- hoslem.test(predSort$lowrain, predSort$phat2b, g = 6))
 HL2b$expected
 
 # Collect the data in a useful form for plotting:
-(HLDf2b <- data.frame(group = seq(1, 7),
+(HLDf2b <- data.frame(group = seq(1, 8),
                        Obs0 = HL2b$observed[, 1],
                        Obs1 = HL2b$observed[, 2],
                        Exp0 = HL2b$expected[, 1],
