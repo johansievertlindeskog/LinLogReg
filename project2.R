@@ -986,8 +986,7 @@ ggplot(predSort, aes(rank, phat2b)) +
   geom_point() +
   geom_jitter(aes(y = lowrain), height = 0.01) +
   geom_vline(xintercept = seq(ng, nrow(predSort) - ng, ng)) +
-  labs(title = "Model 2b: Estimated probabilities by increasing size",
-       caption = "g = 10 groups",
+  labs(title = "Estimated probabilities by increasing size",
        x = "(i) = 1,...,n", y = "p-hat") +
   theme(text = element_text(size = 14))
 
@@ -1045,11 +1044,11 @@ length(model2b$coefficients)
 
 # so we need g > 2 since p = 1 while the smallest expected value in each group should be
 # at least approx 5. Manually found the best g = 7
-(HL2b <- hoslem.test(predSort$lowrain, predSort$phat2b, g = 6))
+(HL2b <- hoslem.test(predSort$lowrain, predSort$phat2b, g = 9))
 HL2b$expected
 
 # Collect the data in a useful form for plotting:
-(HLDf2b <- data.frame(group = seq(1, 8),
+(HLDf2b <- data.frame(group = seq(1, 9),
                        Obs0 = HL2b$observed[, 1],
                        Obs1 = HL2b$observed[, 2],
                        Exp0 = HL2b$expected[, 1],
@@ -1060,13 +1059,15 @@ ggplot(HLDf2b, aes(group, Obs0)) +
   geom_line(aes(y = Obs1), linetype = "dashed", size = 1) +
   geom_line(aes(y = Exp0), color = "red", size = 1) +
   geom_line(aes(y = Exp1), size = 1) +
-  labs(title = "Model2b: Observed and expected in each group",
-       caption = "solid = expected, dashed = observed, red = 0, black = 1",
+  labs(title = "Observed and expected in each group",
        y = "number of observations") +
   scale_x_continuous(breaks = seq(1, 11)) +
   theme(text = element_text(size = 14))
 
-# HL for model3a                                      (inte 100 på att g =9 är bäst, kolla upp det)
+# caption = "solid = expected, dashed = observed, red = 0, black = 1",
+
+
+# HL for model3a
 length(model3a$coefficients)
 
 (HL3a <- hoslem.test(predSort$lowrain, predSort$phat3a, g = 9))
@@ -1084,21 +1085,25 @@ ggplot(HLDf3a, aes(group, Obs0)) +
   geom_line(aes(y = Obs1), linetype = "dashed", size = 1) +
   geom_line(aes(y = Exp0), color = "red", size = 1) +
   geom_line(aes(y = Exp1), size = 1) +
-  labs(title = "Model3a: Observed and expected in each group",
-       caption = "solid = expected, dashed = observed, red = 0, black = 1",
+  labs(title = "Observed and expected in each group",
        y = "number of observations") +
   scale_x_continuous(breaks = seq(1, 11)) +
   theme(text = element_text(size = 14))
 
-# HL for model4a                                    (use 6 or 7, inte säker på hur vi bäst väljer......)
+# caption = "solid = expected, dashed = observed, red = 0, black = 1",
+
+
+# HL for model4a
 length(model4a$coefficients)
 
+k = 9
+
 # Starting at p + 2 = 7
-(HL4a <- hoslem.test(predSort$lowrain, predSort$phat4a, g = 7)) # 7 is the best choise
+(HL4a <- hoslem.test(predSort$lowrain, predSort$phat4a, g = k)) # 7 is the best choise
 HL4a$expected
 
 # Collect the data in a useful form for plotting:
-(HLDf4a <- data.frame(group = seq(1, 7),
+(HLDf4a <- data.frame(group = seq(1, k),
                       Obs0 = HL4a$observed[, 1],
                       Obs1 = HL4a$observed[, 2],
                       Exp0 = HL4a$expected[, 1],
@@ -1109,9 +1114,9 @@ ggplot(HLDf4a, aes(group, Obs0)) +
   geom_line(aes(y = Obs1), linetype = "dashed", size = 1) +
   geom_line(aes(y = Exp0), color = "red", size = 1) +
   geom_line(aes(y = Exp1), size = 1) +
-  labs(title = "Model4a: Observed and expected in each group",
-       caption = "solid = expected, dashed = observed, red = 0, black = 1",
+  labs(title = "Observed and expected in each group",
        y = "number of observations") +
   scale_x_continuous(breaks = seq(1, 11)) +
   theme(text = element_text(size = 14))
 
+# caption = "solid = expected, dashed = observed, red = 0, black = 1",
