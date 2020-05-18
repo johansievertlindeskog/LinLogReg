@@ -445,7 +445,7 @@ grid.arrange(plotCooksDTemp2b, plotCooksDPressure3a, nrow=1, ncol=2)
 ##### 3 (f) R2 Cox-Snell and R2 Nagelkerke #####
 logLik(model0)
 (lnL0 <- logLik(model0)[1])
-(R2CSMax <- 1 - (exp(lnL0))^(2/500))
+(R2CSMax <- 1 - (exp(lnL0))^(2/nrow(weather)))
 
 # Collect the log likelihoods L(betahat)
 collectAIC$loglik <- 
@@ -730,7 +730,7 @@ plotCooksDPressure4a
 ##### 4 (f) R2 Cox-Snell and R2 Nagelkerke #####
 logLik(model0)
 (lnL0 <- logLik(model0)[1])
-(R2CSMax <- 1 - (exp(lnL0))^(2/500))
+(R2CSMax <- 1 - (exp(lnL0))^(2/nrow(weather)))
 
 # Collect the log likelihoods L(betahat)
 collectAIC$loglik <- 
@@ -740,6 +740,7 @@ collectAIC$loglik <-
 
 collectAIC$R2CS <- 1 - (exp(lnL0 - collectAIC$loglik))^(2/nrow(weather))
 collectAIC$R2N <- collectAIC$R2CS/R2CSMax
+collectAIC
 
 # Conslusion: R2CS and R2N highest for model4a.
 
@@ -1120,3 +1121,4 @@ ggplot(HLDf4a, aes(group, Obs0)) +
   theme(text = element_text(size = 14))
 
 # caption = "solid = expected, dashed = observed, red = 0, black = 1",
+
