@@ -153,7 +153,7 @@ head(lowrainPred2b)
 # plot the intervals:
 ggplot(lowrainPred2b, aes(temp, lowrain)) +
   geom_point() +
-  geom_smooth(se = FALSE, linetype = "dashed") +
+  geom_smooth(linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
   geom_ribbon(aes(ymin = p.lwr, ymax = p.upr), alpha = 0.2) +
   xlab("Temperature (°C)") +
@@ -313,7 +313,7 @@ head(lowrainPred3a)
 # plot the intervals:
 ggplot(lowrainPred3a, aes(I(pressure - 1012), lowrain)) +
   geom_point() +
-  geom_smooth(se = FALSE, linetype = "dashed") +
+  geom_smooth(linetype = "dashed") +
   geom_line(aes(y = phat), color = "red", size = 1) +
   geom_ribbon(aes(ymin = p.lwr, ymax = p.upr), alpha = 0.2) +
   xlab("Pressure (0 = 1012 hPa)") +
