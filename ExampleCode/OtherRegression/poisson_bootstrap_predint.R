@@ -8,7 +8,7 @@
 # p = confidence level of the interval
 
 boot.pois <- function(model, newdata, N, p) {
-  odata <- model$data # odata är datan vi drar stickårov ifrån
+  odata <- model$data
   lp <- (1 - p) / 2
   up <- 1 - lp
   # comment out the following line:
