@@ -19,7 +19,7 @@ library(ggplot2)
 # p = confidence level of the interval
 
 boot.pois <- function(model, newdata, N, p) {
-  odata <- model$data # odata är datan vi drar stickprov ifrån
+  odata <- model$data # odata Ã¤r datan vi drar stickprov ifrÃ¥n
   lp <- (1 - p) / 2
   up <- 1 - lp
   # comment out the following line:
@@ -512,6 +512,3 @@ pchisq(D_diff, f_diff, lower.tail = FALSE)
 
 # Conclusion: D_diff is less compared to before when NOT using the reduced data set. However, this
 # does not mean that we should go back to our old model. See visual results instead.
-
-##### TEST WITH LINEAR REGRESSION #####
-
